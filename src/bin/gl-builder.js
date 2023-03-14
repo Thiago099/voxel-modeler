@@ -57,6 +57,14 @@ class attributeBuilder
         const framebuffer = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
 
+
+        //
+        var depthBuffer = gl.createRenderbuffer();
+        gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, canvas.width, canvas.height);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer);
+
+
         // Create a texture object to attach to the framebuffer
         const texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -64,6 +72,7 @@ class attributeBuilder
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+        
 
         callback();
 

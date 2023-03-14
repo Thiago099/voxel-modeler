@@ -42,11 +42,23 @@ canvas.$on("mousedown",e=>{
     position.x = e.clientX
     position.y = e.clientY
 })
+canvas.$on("contextmenu",e=>{
+    e.preventDefault()
+    return false
+})
 canvas.$on("mouseup",e=>{
     var current = {x:e.clientX,y:e.clientY}
     if(selection != null && current.x == position.x && current.y == position.y)
     {
-        console.log(selection)
+        // left button
+        if(e.button == 0)
+        {
+            voxel.add(selection.voxel.map((x,i)=>x+selection.direction[i]))
+        }
+        else if(e.button == 2)
+        {
+            voxel.remove(selection.index)
+        }
     }
 })
 
@@ -84,6 +96,7 @@ async function process(){
         update()
 
         var pixel = null
+        
         builder.buffer(()=>{
             gl.clearColor(0, 0, 0, 0);
             builder.uniform_float.is_picking_step = 1
@@ -133,6 +146,7 @@ async function process(){
 
         
         builder.uniform_float.enable_color_overlay = 0
+        
     })
 }
 

@@ -135,6 +135,8 @@ class Voxel
     {
         this.voxels = [
             [0,0,0],
+            [1,0,0],
+            [1,1,0],
         ]
     }
     init()
@@ -143,6 +145,16 @@ class Voxel
         this.build_face_indices()
         this.build_pick_map()
         this.build_positions()
+    }
+    add(voxel)
+    {
+        this.voxels.push(voxel)
+        this.init()
+    }
+    remove(index)
+    {
+        this.voxels = this.voxels.filter((_,i) => i != index)
+        this.init()
     }
     get_highlight(data,index,setSelection)
     {
@@ -160,7 +172,11 @@ class Voxel
             {
                 if(optimized_id == transformedFaceIndex)
                 {
-                    setSelection([this.voxels[index],directions[direction_id]])
+                    setSelection({
+                        voxel:this.voxels[index],
+                        direction:directions[direction_id],
+                        index:index,
+                    })
                     for(var j = 0; j < 4; j++)
                     {
                         result.push(1,0.6,0.6,1)
@@ -290,7 +306,6 @@ class Voxel
                     }
                 }
             }
-            console.log(colors);
             result.push({colors,start,end:id-1});
         }
         this.pick_map = result;
