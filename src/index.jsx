@@ -36,6 +36,7 @@ var voxel = new Voxel()
 voxel.init()
 
 
+
 async function process(){
     var vertCode = await fetch("./shader.vert").then(res=>res.text())
     var fragCode = await fetch("./shader.frag").then(res=>res.text())
