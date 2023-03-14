@@ -190,8 +190,8 @@ function getFaceIndexes(faces,vertexIndexes)
         result.push(voxel_data);
     }
     return result;
-    
 }
+
 function getIdMap(faces)
 {
 
@@ -303,6 +303,18 @@ function GetCubeSelectionColor(data,map,faces)
         //     1.0, 0.6, 0.6, 1.0,
         //     1.0, 0.6, 0.8, 1.0,
         // ], faceIndex*16);
+    }
+    else
+    {
+        var result = []
+        for(var i = 0; i < faces.length; i++)
+        {
+            for(var j = 0; j < 4; j++)
+            {
+                result.push(1,1,1,1)
+            }
+        }
+        return result;
     }
 
 
