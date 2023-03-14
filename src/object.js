@@ -8,7 +8,7 @@ function id_2_color(id)
         ((id >>  0) & 0xFF) / 0xFF,
         ((id >>  8) & 0xFF) / 0xFF,
         ((id >> 16) & 0xFF) / 0xFF,
-        ((id >> 24) & 0xFF) / 0xFF,
+        1.0
     ]
 }
 function color_2_id(color)
@@ -16,8 +16,7 @@ function color_2_id(color)
     return (
         color[0] +
         (color[1] <<  8 ) +
-        (color[2] << 16) +
-        (color[3] << 24)
+        (color[2] << 16)
     ) - 1
 }
 
@@ -41,7 +40,7 @@ const vertexNormals = [
     -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
   ];
 
-  const vertexPosition = [
+const vertexPosition = [
     // Front face
     -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
 
@@ -60,6 +59,7 @@ const vertexNormals = [
     // Left face
     -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0,
 ];
+
 const vertexIndexes = [
     0,
     1,
@@ -123,231 +123,189 @@ const wireframeIndexes = [
 ];
 
 
-const voxels = [
-    [0,0,0],
-    [0,1,0],
-    [0,0,1]
-]
 
-
-function getFaces(voxels)
+class Voxel
 {
-    const faces = new Array(voxels.length).fill(0).map(x => [1,1,1,1,1,1]);
-
-    for(var i = 0; i < voxels.length; i++)
-    for(var j = i+1; j < voxels.length; j++)
+    constructor()
     {
-        if(voxels[i][0]+1 == voxels[j][0] && voxels[i][1] == voxels[j][1] && voxels[i][2] == voxels[j][2])
-        {
-            faces[i][4] = 0;
-            faces[j][5] = 0;
-        }
-        if(voxels[i][0]-1 == voxels[j][0] && voxels[i][1] == voxels[j][1] && voxels[i][2] == voxels[j][2])
-        {
-            faces[i][5] = 0;
-            faces[j][4] = 0;
-        }
+        this.voxels = [
+            [0,0,0],
+        ]
+    }
+    init()
+    {
+        this.build_faces()
+        this.build_face_indices()
+        this.build_pick_map()
+        this.build_positions()
+    }
+    get_highlight(data,index)
+    {
+        const map = this.pick_map[index]
+        const face = this.faces[index]
+        var faceIndex = color_2_id(data)
+
         
-        if(voxels[i][1]+1 == voxels[j][1] && voxels[i][0] == voxels[j][0] && voxels[i][2] == voxels[j][2])
+        if(faceIndex >= map.start && faceIndex < map.end)
         {
-            faces[i][2] = 0;
-            faces[j][3] = 0;
-        }
-        if(voxels[i][1]-1 == voxels[j][1] && voxels[i][0] == voxels[j][0] && voxels[i][2] == voxels[j][2])
-        {
-            faces[i][3] = 0;
-            faces[j][2] = 0;
-        }
-
-        if(voxels[i][2]+1 == voxels[j][2] && voxels[i][0] == voxels[j][0] && voxels[i][1] == voxels[j][1])
-        {
-            faces[i][0] = 0;
-            faces[j][1] = 0;
-        }
-        if(voxels[i][2]-1 == voxels[j][2] && voxels[i][0] == voxels[j][0] && voxels[i][1] == voxels[j][1])
-        {
-            faces[i][1] = 0;
-            faces[j][0] = 0;
-        }
-    }
-    return faces;
-}
-
-function getFaceIndexes(faces,vertexIndexes)
-{
-    var result = [];
-    for(var face of faces)
-    {
-        var voxel_data = [];
-        for(const index in face)
-        {
-            const item = face[index];
-            if(item == 1)
+            var transformedFaceIndex = faceIndex - map.start;
+            var result = []
+            var current_id = 0
+            for(var i = 0; i < face.length; i++)
             {
-                voxel_data.push(...vertexIndexes.slice(index*6, index*6+6));
-            }
-        }
-        result.push(voxel_data);
-    }
-    return result;
-}
-
-function getIdMap(faces)
-{
-
-    var result = [];
-    var id = 1
-    for(var face of faces)
-    {
-        var start = id-1;
-        var colors = [];
-        for(const index in face)
-        {
-            const item = face[index];
-            if(item == 1)
-            {
-                var current_id = id_2_color(id);
-                id++
-                for(var j = 0; j < 4; j++)
+                if(current_id == transformedFaceIndex)
                 {
-                    colors.push(...current_id);
+                    for(var j = 0; j < 4; j++)
+                    {
+                        result.push(1,0.6,0.6,1)
+                    }
+                }
+                else
+                {
+                    for(var j = 0; j < 4; j++)
+                    {
+                        result.push(1,0.9,0.9,1)
+                    }
+                }
+                if(face[i] == 1)
+                {
+                    current_id++
                 }
             }
-            else
+            return result;
+        }
+        else
+        {
+            var result = []
+            for(var i = 0; i < face.length; i++)
             {
                 for(var j = 0; j < 4; j++)
                 {
-                    colors.push(0,0,0,0);
+                    result.push(1,1,1,1)
                 }
             }
+            return result;
         }
-        console.log(colors);
-        result.push({colors,start,end:id-1});
     }
-    return result;
+    build_faces()
+    {
+        const voxels = this.voxels
+        const faces = new Array(voxels.length).fill(0).map(x => [1,1,1,1,1,1]);
+
+        for(var i = 0; i < voxels.length; i++)
+        for(var j = i+1; j < voxels.length; j++)
+        {
+            if(voxels[i][0]+1 == voxels[j][0] && voxels[i][1] == voxels[j][1] && voxels[i][2] == voxels[j][2])
+            {
+                faces[i][4] = 0;
+                faces[j][5] = 0;
+            }
+            if(voxels[i][0]-1 == voxels[j][0] && voxels[i][1] == voxels[j][1] && voxels[i][2] == voxels[j][2])
+            {
+                faces[i][5] = 0;
+                faces[j][4] = 0;
+            }
+            
+            if(voxels[i][1]+1 == voxels[j][1] && voxels[i][0] == voxels[j][0] && voxels[i][2] == voxels[j][2])
+            {
+                faces[i][2] = 0;
+                faces[j][3] = 0;
+            }
+            if(voxels[i][1]-1 == voxels[j][1] && voxels[i][0] == voxels[j][0] && voxels[i][2] == voxels[j][2])
+            {
+                faces[i][3] = 0;
+                faces[j][2] = 0;
+            }
+
+            if(voxels[i][2]+1 == voxels[j][2] && voxels[i][0] == voxels[j][0] && voxels[i][1] == voxels[j][1])
+            {
+                faces[i][0] = 0;
+                faces[j][1] = 0;
+            }
+            if(voxels[i][2]-1 == voxels[j][2] && voxels[i][0] == voxels[j][0] && voxels[i][1] == voxels[j][1])
+            {
+                faces[i][1] = 0;
+                faces[j][0] = 0;
+            }
+        }
+        this.faces = faces;
+    }
+    build_face_indices()
+    {
+        const faces = this.faces;
+        var result = [];
+        for(var face of faces)
+        {
+            var voxel_data = [];
+            for(const index in face)
+            {
+                const item = face[index];
+                if(item == 1)
+                {
+                    voxel_data.push(...vertexIndexes.slice(index*6, index*6+6));
+                }
+            }
+            result.push(voxel_data);
+        }
+        this.face_indices = result;
+    }
+    build_positions()
+    {
+        const center = this.center;
+        this.positions = this.voxels.map(x=>x.map((x,i)=>(x*2)-center[i]));;
+    }
+    build_pick_map()
+    {
+        const faces = this.faces;
+        var result = [];
+        var id = 1
+        for(var face of faces)
+        {
+            var start = id-1;
+            var colors = [];
+            for(const index in face)
+            {
+                const item = face[index];
+                if(item == 1)
+                {
+                    var current_id = id_2_color(id);
+                    id++
+                    for(var j = 0; j < 4; j++)
+                    {
+                        colors.push(...current_id);
+                    }
+                }
+                else
+                {
+                    for(var j = 0; j < 4; j++)
+                    {
+                        colors.push(0,0,0,0);
+                    }
+                }
+            }
+            console.log(colors);
+            result.push({colors,start,end:id-1});
+        }
+        this.pick_map = result;
+    }
+    get center()
+    {
+        const boundary = this.boundary;
+        return boundary[0].map((x, i) => x + boundary[1][i]);
+    }
+    get boundary()
+    {
+        const voxels = this.voxels;
+        var min = voxels[0];
+        var max = voxels[0];
     
-}
-
-
-
-const faces = getFaces(voxels);
-const faceIndexes = getFaceIndexes(faces,vertexIndexes);
-const idMap = getIdMap(faces);
-
-
-// var displayColors = []
-// for(const face of faces)
-// {
-//     var current = []
-//     for(const item of face)
-//     {
-//         if(item == 1)
-//         {
-//             var r = Math.random();
-//             var g = Math.random();
-//             var b = Math.random();
-//             for(var i = 0; i < 4; i++)
-//             {
-//                 current.push(r,g,b,1);
-//             }
-//         }
-//         else
-//         {
-//             for(var i = 0; i < 4; i++)
-//             {
-//                 current.push(0,0,0,0);
-//             }
-//         }
-//     }
-//     displayColors.push(current);
-// }
-// console.log(displayColors);
-
-function GetCubeSelectionColor(data,map,faces)
-{
-
-    var faceIndex = color_2_id(data)
-
-    if(faceIndex >= map.start && faceIndex < map.end)
-    {
-        var transformedFaceIndex = faceIndex - map.start;
-        var result = []
-        var current_id = 0
-        for(var i = 0; i < faces.length; i++)
+        for(var i = 1; i < voxels.length; i++)
         {
-            if(current_id == transformedFaceIndex)
-            {
-                for(var j = 0; j < 4; j++)
-                {
-                    result.push(1,0.6,0.6,1)
-                }
-            }
-            else
-            {
-                for(var j = 0; j < 4; j++)
-                {
-                    result.push(1,0.9,0.9,1)
-                }
-            }
-            if(faces[i] == 1)
-            {
-                current_id++
-            }
+            min = min.map((x, j) => Math.min(x, voxels[i][j]));
+            max = max.map((x, j) => Math.max(x, voxels[i][j]));
         }
-        return result;
-
-        // var displayColors = new Float32Array(8*12); // assuming 24 faces
-        // displayColors.set([
-        //     1.0, 0.6, 0.6, 1.0,
-        //     1.0, 0.6, 0.6, 1.0,
-        //     1.0, 0.6, 0.6, 1.0,
-        //     1.0, 0.6, 0.8, 1.0,
-        // ], faceIndex*16);
+        return [min, max];
     }
-    else
-    {
-        var result = []
-        for(var i = 0; i < faces.length; i++)
-        {
-            for(var j = 0; j < 4; j++)
-            {
-                result.push(1,1,1,1)
-            }
-        }
-        return result;
-    }
-
-
-    // random color for each face
-
-
 }
-function gedBoundary(voxels)
-{
-    var min = voxels[0];
-    var max = voxels[0];
 
-    for(var i = 1; i < voxels.length; i++)
-    {
-        min = min.map((x, j) => Math.min(x, voxels[i][j]));
-        max = max.map((x, j) => Math.max(x, voxels[i][j]));
-    }
-    return [min, max];
-}
-var boundary = gedBoundary(voxels);
-
-var center = boundary[0].map((x, i) => x + boundary[1][i]);
-
-const positions = voxels.map(x=>x.map((x,i)=>(x*2)-center[i]));
-
-export {
-    vertexPosition,
-    GetCubeSelectionColor,
-    idMap,
-    vertexIndexes,
-    wireframeIndexes, 
-    vertexNormals,
-    positions,
-    faceIndexes,
-    faces
-}
+export {Voxel,vertexPosition,vertexNormals,wireframeIndexes}

@@ -1,6 +1,6 @@
 
 import './style.css'
-import {vertexPosition, GetCubeSelectionColor, idMap,vertexIndexes,wireframeIndexes,vertexNormals,positions, faceIndexes,faces} from './object.js'
+import { Voxel,vertexPosition, vertexNormals,wireframeIndexes } from './object.js'
 
 import { webgl } from './bin/gl-builder'
 import { useCamera } from './bin/camera'
@@ -32,6 +32,9 @@ canvas.height = 800
 
 main.$parent(document.body)
 
+var voxel = new Voxel()
+voxel.init()
+
 
 async function process(){
     var vertCode = await fetch("./shader.vert").then(res=>res.text())
@@ -45,7 +48,6 @@ async function process(){
 
     builder.attribute_matrix_3_float.normal = vertexNormals
     builder.attribute_matrix_3_float.position = vertexPosition;
-    builder.face = vertexIndexes
     builder.uniform_4_float.color_overlay = [0.0,0.0,0.0,1.0]
 
 
@@ -72,11 +74,11 @@ async function process(){
             builder.uniform_float.is_picking_step = 1
             
             clear()
-            for(const index in positions)
+            for(const index in voxel.positions)
             {
-                builder.attribute_matrix_4_float.color = idMap[index].colors;
-                builder.uniform_3_float.transform = positions[index]
-                builder.drawSolid(faceIndexes[index])
+                builder.attribute_matrix_4_float.color = voxel.pick_map[index].colors;
+                builder.uniform_3_float.transform = voxel.positions[index]
+                builder.drawSolid(voxel.face_indices[index])
             }
             pixel = builder.getPixel(mouse.x, mouse.y)
         })
@@ -90,19 +92,19 @@ async function process(){
         gl.polygonOffset(1.0, 1.0);
         clear()
 
-        for(const index in positions)
+        for(const index in voxel.positions)
         {
-            builder.attribute_matrix_4_float.color = GetCubeSelectionColor(pixel,idMap[index],faces[index]);
-            builder.uniform_3_float.transform = positions[index]
-            builder.drawSolid(faceIndexes[index])
+            builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel,index)
+            builder.uniform_3_float.transform = voxel.positions[index]
+            builder.drawSolid(voxel.face_indices[index])
         }
         gl.disable(gl.POLYGON_OFFSET_FILL);
 
         builder.uniform_float.enable_color_overlay = 1
 
-        for(const index in positions)
+        for(const index in voxel.positions)
         {
-            builder.uniform_3_float.transform = positions[index]
+            builder.uniform_3_float.transform = voxel.positions[index]
             builder.drawLines(wireframeIndexes)
         }
 
