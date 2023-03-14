@@ -2,41 +2,6 @@
 
 
 
-function GetCubeIdMap()
-{
-    var colors = [];
-    const faces = 6
-    
-    for(var i = 0; i < faces; i++)
-    {
-        var id = id_2_color(i+1);
-        for(var j = 0; j < 4; j++)
-        {
-            colors.push(...id);
-        }
-    }
-    return colors;
-}
-
-function GetCubeSelectionColor(data)
-{
-    var displayColors = new Float32Array(8*12); // assuming 24 faces
-    displayColors.fill(1); // set all faces to white
-
-    const faceIndex = color_2_id(data)
-
-    if (faceIndex >= 0) {
-        // set selected face to red
-        displayColors.set([
-            1.0, 0.6, 0.6, 1.0,
-            1.0, 0.6, 0.6, 1.0,
-            1.0, 0.6, 0.6, 1.0,
-            1.0, 0.6, 0.8, 1.0,
-        ], faceIndex*16);
-    }
-    return displayColors;
-}
-
 function id_2_color(id)
 {
     return [
@@ -163,7 +128,7 @@ const voxels = [
     [0,1,0]
 ]
 
-const faces = getFaces(voxels);
+
 function getFaces(voxels)
 {
     const faces = new Array(voxels.length).fill(0).map(x => [1,1,1,1,1,1]);
@@ -181,6 +146,17 @@ function getFaces(voxels)
             faces[i][5] = 0;
             faces[j][4] = 0;
         }
+        
+        if(voxels[i][1]+1 == voxels[j][1])
+        {
+            faces[i][2] = 0;
+            faces[j][3] = 0;
+        }
+        if(voxels[i][1]-1 == voxels[j][1])
+        {
+            faces[i][3] = 0;
+            faces[j][2] = 0;
+        }
 
         if(voxels[i][2]+1 == voxels[j][2])
         {
@@ -191,17 +167,6 @@ function getFaces(voxels)
         {
             faces[i][1] = 0;
             faces[j][0] = 0;
-        }
-
-        if(voxels[i][1]+1 == voxels[j][1])
-        {
-            faces[i][2] = 0;
-            faces[j][3] = 0;
-        }
-        if(voxels[i][1]-1 == voxels[j][1])
-        {
-            faces[i][3] = 0;
-            faces[j][2] = 0;
         }
     }
     return faces;
@@ -216,7 +181,6 @@ function getFaceIndexes(faces,vertexIndexes)
         for(const index in face)
         {
             const item = face[index];
-            console.log(item);
             if(item == 1)
             {
                 voxel_data.push(...vertexIndexes.slice(index*6, index*6+6));
@@ -227,10 +191,124 @@ function getFaceIndexes(faces,vertexIndexes)
     return result;
     
 }
+function getIdMap(faces)
+{
 
+    var result = [];
+    var id = 1
+    for(var face of faces)
+    {
+        var start = id-1;
+        var colors = [];
+        for(const index in face)
+        {
+            const item = face[index];
+            if(item == 1)
+            {
+                var current_id = id_2_color(id);
+                id++
+                for(var j = 0; j < 4; j++)
+                {
+                    colors.push(...current_id);
+                }
+            }
+            else
+            {
+                for(var j = 0; j < 4; j++)
+                {
+                    colors.push(0,0,0,0);
+                }
+            }
+        }
+        console.log(colors);
+        result.push({colors,start,end:id-1});
+    }
+    return result;
+    
+}
+
+
+
+const faces = getFaces(voxels);
 const faceIndexes = getFaceIndexes(faces,vertexIndexes);
+const idMap = getIdMap(faces);
 
-console.log(faceIndexes);
+
+// var displayColors = []
+// for(const face of faces)
+// {
+//     var current = []
+//     for(const item of face)
+//     {
+//         if(item == 1)
+//         {
+//             var r = Math.random();
+//             var g = Math.random();
+//             var b = Math.random();
+//             for(var i = 0; i < 4; i++)
+//             {
+//                 current.push(r,g,b,1);
+//             }
+//         }
+//         else
+//         {
+//             for(var i = 0; i < 4; i++)
+//             {
+//                 current.push(0,0,0,0);
+//             }
+//         }
+//     }
+//     displayColors.push(current);
+// }
+// console.log(displayColors);
+
+function GetCubeSelectionColor(data,map,faces)
+{
+
+    var faceIndex = color_2_id(data)
+
+    if(faceIndex >= map.start && faceIndex < map.end)
+    {
+        var transformedFaceIndex = faceIndex - map.start;
+        var result = []
+        var current_id = 0
+        for(var i = 0; i < faces.length; i++)
+        {
+            if(current_id == transformedFaceIndex)
+            {
+                for(var j = 0; j < 4; j++)
+                {
+                    result.push(1,0.6,0.6,1)
+                }
+            }
+            else
+            {
+                for(var j = 0; j < 4; j++)
+                {
+                    result.push(1,0.9,0.9,1)
+                }
+            }
+            if(faces[i] == 1)
+            {
+                current_id++
+            }
+        }
+        return result;
+
+        // var displayColors = new Float32Array(8*12); // assuming 24 faces
+        // displayColors.set([
+        //     1.0, 0.6, 0.6, 1.0,
+        //     1.0, 0.6, 0.6, 1.0,
+        //     1.0, 0.6, 0.6, 1.0,
+        //     1.0, 0.6, 0.8, 1.0,
+        // ], faceIndex*16);
+    }
 
 
-export {vertexPosition, GetCubeSelectionColor, GetCubeIdMap, vertexIndexes, wireframeIndexes,  vertexNormals,voxels, faceIndexes}
+    // random color for each face
+
+
+}
+
+
+export {vertexPosition, GetCubeSelectionColor, idMap, vertexIndexes, wireframeIndexes,  vertexNormals,voxels, faceIndexes,faces}

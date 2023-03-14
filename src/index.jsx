@@ -1,6 +1,6 @@
 
 import './style.css'
-import {vertexPosition, GetCubeSelectionColor, GetCubeIdMap,vertexIndexes,wireframeIndexes,vertexNormals,voxels, faceIndexes} from './object.js'
+import {vertexPosition, GetCubeSelectionColor, idMap,vertexIndexes,wireframeIndexes,vertexNormals,voxels, faceIndexes,faces} from './object.js'
 
 import { webgl } from './bin/gl-builder'
 import { useCamera } from './bin/camera'
@@ -46,7 +46,6 @@ async function process(){
     builder.uniform_4_float.color_overlay = [0.0,0.0,0.0,1.0]
 
 
-    const  cube_id_map = GetCubeIdMap()
 
     const {update, mouse} = useCamera(canvas, builder, gl)
 
@@ -67,15 +66,20 @@ async function process(){
         var pixel = null
         builder.buffer(()=>{
             gl.clearColor(0, 0, 0, 0);
-            builder.attribute_matrix_4_float.color = cube_id_map;
             builder.uniform_float.is_picking_step = 1
+            
             clear()
-            builder.drawSolid()
+            for(const index in voxels)
+            {
+                builder.attribute_matrix_4_float.color = idMap[index].colors;
+                builder.uniform_3_float.transform = voxels[index].map(x=>x*2)
+                builder.drawSolid(faceIndexes[index])
+            }
             pixel = builder.getPixel(mouse.x, mouse.y)
         })
 
         
-        builder.attribute_matrix_4_float.color = GetCubeSelectionColor(pixel);
+
         builder.uniform_float.is_picking_step = 0
         gl.clearColor(0.5, 0.5, 0.5, 0.9);
 
@@ -85,6 +89,7 @@ async function process(){
 
         for(const index in voxels)
         {
+            builder.attribute_matrix_4_float.color = GetCubeSelectionColor(pixel,idMap[index],faces[index]);
             builder.uniform_3_float.transform = voxels[index].map(x=>x*2)
             builder.drawSolid(faceIndexes[index])
         }
