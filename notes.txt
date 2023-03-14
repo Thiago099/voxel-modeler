@@ -1,0 +1,27 @@
+// Draw solid object
+gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
+
+// Enable polygon offset
+
+
+// Set line width
+gl.lineWidth(2);
+
+// Draw wireframe overlay
+gl.drawArrays(gl.LINES, 0, vertexCount);
+
+// Disable polygon offset
+
+
+
+
+
+
+
+
+
+
+
+
+// gl.disable(gl.SAMPLE_COVERAGE)
+// gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE)
