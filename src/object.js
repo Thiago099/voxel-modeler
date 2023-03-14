@@ -125,7 +125,8 @@ const wireframeIndexes = [
 
 const voxels = [
     [0,0,0],
-    [0,1,0]
+    [0,1,0],
+    [0,0,1]
 ]
 
 
@@ -136,34 +137,34 @@ function getFaces(voxels)
     for(var i = 0; i < voxels.length; i++)
     for(var j = i+1; j < voxels.length; j++)
     {
-        if(voxels[i][0]+1 == voxels[j][0])
+        if(voxels[i][0]+1 == voxels[j][0] && voxels[i][1] == voxels[j][1] && voxels[i][2] == voxels[j][2])
         {
             faces[i][4] = 0;
             faces[j][5] = 0;
         }
-        if(voxels[i][0]-1 == voxels[j][0])
+        if(voxels[i][0]-1 == voxels[j][0] && voxels[i][1] == voxels[j][1] && voxels[i][2] == voxels[j][2])
         {
             faces[i][5] = 0;
             faces[j][4] = 0;
         }
         
-        if(voxels[i][1]+1 == voxels[j][1])
+        if(voxels[i][1]+1 == voxels[j][1] && voxels[i][0] == voxels[j][0] && voxels[i][2] == voxels[j][2])
         {
             faces[i][2] = 0;
             faces[j][3] = 0;
         }
-        if(voxels[i][1]-1 == voxels[j][1])
+        if(voxels[i][1]-1 == voxels[j][1] && voxels[i][0] == voxels[j][0] && voxels[i][2] == voxels[j][2])
         {
             faces[i][3] = 0;
             faces[j][2] = 0;
         }
 
-        if(voxels[i][2]+1 == voxels[j][2])
+        if(voxels[i][2]+1 == voxels[j][2] && voxels[i][0] == voxels[j][0] && voxels[i][1] == voxels[j][1])
         {
             faces[i][0] = 0;
             faces[j][1] = 0;
         }
-        if(voxels[i][2]-1 == voxels[j][2])
+        if(voxels[i][2]-1 == voxels[j][2] && voxels[i][0] == voxels[j][0] && voxels[i][1] == voxels[j][1])
         {
             faces[i][1] = 0;
             faces[j][0] = 0;
@@ -311,4 +312,14 @@ function GetCubeSelectionColor(data,map,faces)
 }
 
 
-export {vertexPosition, GetCubeSelectionColor, idMap, vertexIndexes, wireframeIndexes,  vertexNormals,voxels, faceIndexes,faces}
+export {
+    vertexPosition,
+    GetCubeSelectionColor,
+    idMap,
+    vertexIndexes,
+    wireframeIndexes, 
+    vertexNormals,
+    voxels,
+    faceIndexes,
+    faces
+}

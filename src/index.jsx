@@ -7,7 +7,7 @@ import { useCamera } from './bin/camera'
 import { step } from './bin/utils'
 
 const canvas = ref()
-
+const fps = ref()
 const main = 
 <div class="main">
     <canvas ref={canvas}></canvas>
@@ -20,6 +20,9 @@ const main =
         </p>
         <p>
             Hover the mouse over the cube to highlight its faces
+        </p>
+        <p>
+            FPS: <span ref={fps}></span>
         </p>
     </div>
 </div>
@@ -59,8 +62,8 @@ async function process(){
         
     }
 
-    step(() => {
-
+    step((a) => {
+        fps.$html(a)
         update()
 
         var pixel = null
