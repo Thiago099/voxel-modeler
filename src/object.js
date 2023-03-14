@@ -310,7 +310,23 @@ function GetCubeSelectionColor(data,map,faces)
 
 
 }
+function gedBoundary(voxels)
+{
+    var min = voxels[0];
+    var max = voxels[0];
 
+    for(var i = 1; i < voxels.length; i++)
+    {
+        min = min.map((x, j) => Math.min(x, voxels[i][j]));
+        max = max.map((x, j) => Math.max(x, voxels[i][j]));
+    }
+    return [min, max];
+}
+var boundary = gedBoundary(voxels);
+
+var center = boundary[0].map((x, i) => x + boundary[1][i]);
+
+const positions = voxels.map(x=>x.map((x,i)=>(x*2)-center[i]));
 
 export {
     vertexPosition,
@@ -319,7 +335,7 @@ export {
     vertexIndexes,
     wireframeIndexes, 
     vertexNormals,
-    voxels,
+    positions,
     faceIndexes,
     faces
 }

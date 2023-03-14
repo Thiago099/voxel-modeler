@@ -1,6 +1,6 @@
 
 import './style.css'
-import {vertexPosition, GetCubeSelectionColor, idMap,vertexIndexes,wireframeIndexes,vertexNormals,voxels, faceIndexes,faces} from './object.js'
+import {vertexPosition, GetCubeSelectionColor, idMap,vertexIndexes,wireframeIndexes,vertexNormals,positions, faceIndexes,faces} from './object.js'
 
 import { webgl } from './bin/gl-builder'
 import { useCamera } from './bin/camera'
@@ -72,10 +72,10 @@ async function process(){
             builder.uniform_float.is_picking_step = 1
             
             clear()
-            for(const index in voxels)
+            for(const index in positions)
             {
                 builder.attribute_matrix_4_float.color = idMap[index].colors;
-                builder.uniform_3_float.transform = voxels[index].map(x=>x*2)
+                builder.uniform_3_float.transform = positions[index]
                 builder.drawSolid(faceIndexes[index])
             }
             pixel = builder.getPixel(mouse.x, mouse.y)
@@ -90,19 +90,19 @@ async function process(){
         gl.polygonOffset(1.0, 1.0);
         clear()
 
-        for(const index in voxels)
+        for(const index in positions)
         {
             builder.attribute_matrix_4_float.color = GetCubeSelectionColor(pixel,idMap[index],faces[index]);
-            builder.uniform_3_float.transform = voxels[index].map(x=>x*2)
+            builder.uniform_3_float.transform = positions[index]
             builder.drawSolid(faceIndexes[index])
         }
         gl.disable(gl.POLYGON_OFFSET_FILL);
 
         builder.uniform_float.enable_color_overlay = 1
 
-        for(const index in voxels)
+        for(const index in positions)
         {
-            builder.uniform_3_float.transform = voxels[index].map(x=>x*2)
+            builder.uniform_3_float.transform = positions[index]
             builder.drawLines(wireframeIndexes)
         }
 
