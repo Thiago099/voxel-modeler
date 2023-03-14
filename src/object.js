@@ -121,9 +121,14 @@ const wireframeIndexes = [
     14, 15,
     15, 12,
 ];
-
-
-
+const directions = [
+    [0,0,1],
+    [0,0,-1],
+    [0,1,0],
+    [0,-1,0],
+    [1,0,0],
+    [-1,0,0],
+]
 class Voxel
 {
     constructor()
@@ -139,22 +144,23 @@ class Voxel
         this.build_pick_map()
         this.build_positions()
     }
-    get_highlight(data,index)
+    get_highlight(data,index,setSelection)
     {
         const map = this.pick_map[index]
         const face = this.faces[index]
         var faceIndex = color_2_id(data)
 
-        
         if(faceIndex >= map.start && faceIndex < map.end)
         {
             var transformedFaceIndex = faceIndex - map.start;
             var result = []
-            var current_id = 0
+            var optimized_id = 0
+            var direction_id = 0;
             for(var i = 0; i < face.length; i++)
             {
-                if(current_id == transformedFaceIndex)
+                if(optimized_id == transformedFaceIndex)
                 {
+                    setSelection([this.voxels[index],directions[direction_id]])
                     for(var j = 0; j < 4; j++)
                     {
                         result.push(1,0.6,0.6,1)
@@ -169,8 +175,9 @@ class Voxel
                 }
                 if(face[i] == 1)
                 {
-                    current_id++
+                    optimized_id++
                 }
+                direction_id++
             }
             return result;
         }

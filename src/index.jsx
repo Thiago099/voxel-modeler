@@ -36,6 +36,20 @@ var voxel = new Voxel()
 voxel.init()
 
 
+var selection = null
+var position = {x:0,y:0}
+canvas.$on("mousedown",e=>{
+    position.x = e.clientX
+    position.y = e.clientY
+})
+canvas.$on("mouseup",e=>{
+    var current = {x:e.clientX,y:e.clientY}
+    if(selection != null && current.x == position.x && current.y == position.y)
+    {
+        console.log(selection)
+    }
+})
+
 
 async function process(){
     var vertCode = await fetch("./shader.vert").then(res=>res.text())
@@ -93,9 +107,17 @@ async function process(){
         gl.polygonOffset(1.0, 1.0);
         clear()
 
+
+        selection = null
+
+        function setSelection(data)
+        {
+            selection = data
+        }
+
         for(const index in voxel.positions)
         {
-            builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel,index)
+            builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel,index,setSelection)
             builder.uniform_3_float.transform = voxel.positions[index]
             builder.drawSolid(voxel.face_indices[index])
         }
