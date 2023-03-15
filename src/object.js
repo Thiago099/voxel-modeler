@@ -240,12 +240,12 @@ class Voxel
         this.pick_meta = meta;
 
     }
-    add(voxel)
+    add(voxel,selection = false)
     {
         const voxels = this.voxels
         const faces = this.faces
         this.voxels.push(voxel)
-        this.selection.push(false)
+        this.selection.push(selection)
         const j = voxels.length-1
         const face = [1,1,1,1,1,1]
         this.faces.push(face)
@@ -332,14 +332,28 @@ class Voxel
                         })
                         for(var j = 0; j < 4; j++)
                         {
-                            result.push(1,0.6,0.6,1)
+                            if(this.selection[index])
+                            {
+                                result.push(0.6,0.6,1,1)
+                            }
+                            else
+                            {
+                                result.push(1,0.6,0.6,1)
+                            }
                         }
                     }
                     else
                     {
                         for(var j = 0; j < 4; j++)
                         {
-                            result.push(1,0.9,0.9,1)
+                            if(this.selection[index])
+                            {
+                                result.push(0.9,0.9,1,1)
+                            }
+                            else
+                            {
+                                result.push(1,0.9,0.9,1)
+                            }
                         }
                     }
 
@@ -360,7 +374,7 @@ class Voxel
                     {
                         for(var j = 0; j < 4; j++)
                         {
-                            result.push(0.6,1,1,1)
+                            result.push(0.9,0.9,1,1)
                         }
                     }
                     else

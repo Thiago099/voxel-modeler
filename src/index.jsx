@@ -90,7 +90,7 @@ async function process(){
                 }
                 else
                 {
-                    voxel.add(selection.voxel.map((x,i)=>x+selection.direction[i]))
+                    voxel.add(selection.voxel.map((x,i)=>x+selection.direction[i]),voxel.selection[selection.index])
                     builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
                     builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
                 }
