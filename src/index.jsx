@@ -141,11 +141,7 @@ async function process(){
 
         builder.uniform_float.enable_color_overlay = 1
 
-        for(const index in voxel.positions)
-        {
-            // builder.uniform_3_float.transform = voxel.positions[index]
-            // builder.drawLines(wireframeIndexes)
-        }
+        builder.drawLines(voxel.geometry_edge_index)
 
         
         builder.uniform_float.enable_color_overlay = 0

@@ -110,16 +110,26 @@ const wireframeIndexes = [
     5, 6,
     6, 7,
     7, 4,
-    //left
+    //top
     8, 9,
     9, 10,
     10, 11,
     11, 8,
-    //right
+    //bottom
     12, 13,
     13, 14,
     14, 15,
     15, 12,
+    //right
+    16, 17,
+    17, 18,
+    18, 19,
+    19, 16,
+    //left
+    20, 21,
+    21, 22,
+    22, 23,
+    23, 20,
 ];
 const directions = [
     [0,0,1],
@@ -181,6 +191,7 @@ class Voxel
         var index = []
         var normals = []
         var color = []
+        var edge_index = []
         var distance = 0
         for(var i = 0; i < this.faces.length; i++)
         {
@@ -196,6 +207,7 @@ class Voxel
                 positions.push(...vertexPosition.slice(j*12,j*12+12).map((x,k) => x + (this.voxels[i][k%3]*2) - this.center[k%3]))
                 normals.push(...vertexNormals.slice(j*12,j*12+12))
                 index.push(...vertexIndexes.slice(j*6,j*6+6).map(x => x + distance - comp))
+                edge_index.push(...wireframeIndexes.slice(j*8,j*8+8).map(x => x + distance - comp))
                 local_distance += 4
                 for(var k = 0; k < 4; k++)
                 {
@@ -208,6 +220,7 @@ class Voxel
         this.geometry_indexes = index
         this.geometry_normals = normals
         this.geometry_color = color
+        this.geometry_edge_index = edge_index
 
     }
     add(voxel)
