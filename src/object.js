@@ -176,6 +176,7 @@ class Voxel
             [1,0,0],
             [1,1,0],
         ]
+        this.selection = [0,0,0]
     }
     init()
     {
@@ -244,6 +245,7 @@ class Voxel
         const voxels = this.voxels
         const faces = this.faces
         this.voxels.push(voxel)
+        this.selection.push(false)
         const j = voxels.length-1
         const face = [1,1,1,1,1,1]
         this.faces.push(face)
@@ -298,6 +300,7 @@ class Voxel
     {
         if(this.voxels.length <= 1) return
         this.voxels = this.voxels.filter((_,i) => i != index)
+        this.selection = this.selection.filter((_,i) => i != index)
         this.init()
     }
     get_highlight(data,setSelection)
@@ -353,9 +356,19 @@ class Voxel
                         continue
                     }
 
-                    for(var j = 0; j < 4; j++)
+                    if(this.selection[index])
                     {
-                        result.push(1,1,1,1)
+                        for(var j = 0; j < 4; j++)
+                        {
+                            result.push(0.6,1,1,1)
+                        }
+                    }
+                    else
+                    {
+                        for(var j = 0; j < 4; j++)
+                        {
+                            result.push(1,1,1,1)
+                        }
                     }
                     id += 1
                 }

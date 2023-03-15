@@ -68,21 +68,48 @@ async function process(){
         e.preventDefault()
         return false
     })
+
+    var keys = new Set()
+    document.addEventListener("keydown",e=>{
+        keys.add(e.key)
+    })
+    document.addEventListener("keyup",e=>{
+        keys.delete(e.key)
+    })
+
     canvas.$on("mouseup",e=>{
         if(selection != null && old != null && selection.index == old.index)
         {
             // left button
             if(e.button == 0)
             {
-                voxel.add(selection.voxel.map((x,i)=>x+selection.direction[i]))
-                builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
-                builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+                console.log(keys)
+                if(keys.has("Shift"))
+                {
+                    voxel.selection[selection.index] = !voxel.selection[selection.index]
+                }
+                else
+                {
+                    voxel.add(selection.voxel.map((x,i)=>x+selection.direction[i]))
+                    builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+                    builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+                }
             }
             else if(e.button == 2)
             {
                 voxel.remove(selection.index)
                 builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
                 builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+            }
+        }
+        else
+        {
+            if(keys.has("Shift"))
+            {
+                for(var index in voxel.selection)
+                {
+                    voxel.selection[index]= false
+                }
             }
         }
     })
