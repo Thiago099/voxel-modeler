@@ -19,7 +19,10 @@ const main =
             Mouse wheel to zoom
         </p>
         <p>
-            Hover the mouse over the cube to highlight its faces
+            left click to add a voxel
+        </p>
+        <p>
+            right click to remove a voxel
         </p>
         <p>
             FPS: <span ref={fps}></span>
