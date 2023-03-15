@@ -112,7 +112,6 @@ async function process(){
             builder.uniform_float.is_picking_step = 1
             
             clear()
- 
             builder.attribute_matrix_4_float.color = voxel.pick_map;
             builder.drawSolid(voxel.geometry_indexes)
             pixel = builder.getPixel(mouse.x, mouse.y)
@@ -130,12 +129,8 @@ async function process(){
 
         selection = null
 
-        function setSelection(data)
-        {
-            selection = data
-        }
 
-        builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel,setSelection)
+        builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel,data=>selection = data)
         builder.drawSolid(voxel.geometry_indexes)
         gl.disable(gl.POLYGON_OFFSET_FILL);
 
