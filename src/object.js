@@ -173,6 +173,42 @@ class Voxel
         this.build_face_indices()
         this.build_pick_map()
         this.build_positions()
+        this.build_geometry()
+    }
+    build_geometry()
+    {
+        var positions = []
+        var index = []
+        var normals = []
+        var color = []
+        var distance = 0
+        for(var i = 0; i < this.faces.length; i++)
+        {
+            var local_distance = 0
+            var comp = 0
+            for(var j = 0; j < 6; j++)
+            {
+                if(this.faces[i][j] == 0) 
+                {
+                    comp += 4
+                    continue
+                }
+                positions.push(...vertexPosition.slice(j*12,j*12+12).map((x,k) => x + (this.voxels[i][k%3]*2) - this.center[k%3]))
+                normals.push(...vertexNormals.slice(j*12,j*12+12))
+                index.push(...vertexIndexes.slice(j*6,j*6+6).map(x => x + distance - comp))
+                local_distance += 4
+                for(var k = 0; k < 4; k++)
+                {
+                    color.push(1,1,1,1)
+                }
+            }
+            distance += local_distance
+        }
+        this.geometry_vertexes = positions
+        this.geometry_indexes = index
+        this.geometry_normals = normals
+        this.geometry_color = color
+
     }
     add(voxel)
     {
@@ -230,6 +266,7 @@ class Voxel
         this.build_face_indices()
         this.build_pick_map()
         this.build_positions()
+        this.build_geometry()
     }
     remove(index)
     {
@@ -237,59 +274,70 @@ class Voxel
         this.voxels = this.voxels.filter((_,i) => i != index)
         this.init()
     }
-    get_highlight(data,index,setSelection)
+    get_highlight(data,setSelection)
     {
-        const map = this.pick_map[index]
-        const face = this.faces[index]
         var faceIndex = color_2_id(data)
+        var result = []
+        var id = 0
+        for(const index in this.pick_meta)
+        {
+            const face = this.faces[index]
+            const map = this.pick_meta[index]
+            if(faceIndex >= map.start && faceIndex < map.end)
+            {
+                var direction_id = 0
+                for(var i = 0; i < face.length; i++)
+                {
+                    if(face[i] == 0)
+                    {
+                        direction_id += 1
+                        continue
+                    }
 
-        if(faceIndex >= map.start && faceIndex < map.end)
-        {
-            var transformedFaceIndex = faceIndex - map.start;
-            var result = []
-            var optimized_id = 0
-            var direction_id = 0;
-            for(var i = 0; i < face.length; i++)
-            {
-                if(optimized_id == transformedFaceIndex)
-                {
-                    setSelection({
-                        voxel:this.voxels[index],
-                        direction:directions[direction_id],
-                        index:index,
-                    })
-                    for(var j = 0; j < 4; j++)
+                    if(faceIndex == id)
                     {
-                        result.push(1,0.6,0.6,1)
+                        setSelection({
+                            voxel:this.voxels[index],
+                            direction:directions[direction_id],
+                            index:index,
+                        })
+                        for(var j = 0; j < 4; j++)
+                        {
+                            result.push(1,0.6,0.6,1)
+                        }
                     }
-                }
-                else
-                {
-                    for(var j = 0; j < 4; j++)
+                    else
                     {
-                        result.push(1,0.9,0.9,1)
+                        for(var j = 0; j < 4; j++)
+                        {
+                            result.push(1,0.9,0.9,1)
+                        }
                     }
-                }
-                if(face[i] == 1)
-                {
-                    optimized_id++
-                }
-                direction_id++
-            }
-            return result;
-        }
-        else
-        {
-            var result = []
-            for(var i = 0; i < face.length; i++)
-            {
-                for(var j = 0; j < 4; j++)
-                {
-                    result.push(1,1,1,1)
+
+                    direction_id += 1
+                    id += 1
                 }
             }
-            return result;
+            else
+            {
+                for(var i = 0; i < face.length; i++)
+                {
+                    if(face[i] == 0)
+                    {
+                        continue
+                    }
+
+                    for(var j = 0; j < 4; j++)
+                    {
+                        result.push(1,1,1,1)
+                    }
+                    id += 1
+                }
+            }
+
         }
+        return result;
+        
     }
     build_faces()
     {
@@ -331,7 +379,9 @@ class Voxel
                 faces[i][1] = 0;
                 faces[j][0] = 0;
             }
+            
         }
+
         this.faces = faces;
     }
     build_face_indices()
@@ -361,7 +411,8 @@ class Voxel
     build_pick_map()
     {
         const faces = this.faces;
-        var result = [];
+        var chroma = [];
+        var meta = [];
         var id = 1
         for(var face of faces)
         {
@@ -379,17 +430,12 @@ class Voxel
                         colors.push(...current_id);
                     }
                 }
-                else
-                {
-                    for(var j = 0; j < 4; j++)
-                    {
-                        colors.push(0,0,0,0);
-                    }
-                }
             }
-            result.push({colors,start,end:id-1});
+            meta.push({start,end:id-1})
+            chroma.push(...colors);
         }
-        this.pick_map = result;
+        this.pick_map = chroma;
+        this.pick_meta = meta;
     }
     get center()
     {

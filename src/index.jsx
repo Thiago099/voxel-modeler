@@ -36,35 +36,6 @@ var voxel = new Voxel()
 voxel.init()
 
 
-var selection = null
-
-var old = null
-canvas.$on("mousedown",e=>{
-    if(e.button == 1)
-    {
-        e.preventDefault()
-    }
-    old = selection
-})
-
-canvas.$on("contextmenu",e=>{
-    e.preventDefault()
-    return false
-})
-canvas.$on("mouseup",e=>{
-    if(selection != null && old != null && selection.index == old.index)
-    {
-        // left button
-        if(e.button == 0)
-        {
-            voxel.add(selection.voxel.map((x,i)=>x+selection.direction[i]))
-        }
-        else if(e.button == 2)
-        {
-            voxel.remove(selection.index)
-        }
-    }
-})
 
 
 async function process(){
@@ -77,9 +48,44 @@ async function process(){
     builder.antialias = false
 
 
-    builder.attribute_matrix_3_float.normal = vertexNormals
-    builder.attribute_matrix_3_float.position = vertexPosition;
+    builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+    builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
     builder.uniform_4_float.color_overlay = [0.0,0.0,0.0,1.0]
+
+    
+    var selection = null
+
+    var old = null
+    canvas.$on("mousedown",e=>{
+        if(e.button == 1)
+        {
+            e.preventDefault()
+        }
+        old = selection
+    })
+
+    canvas.$on("contextmenu",e=>{
+        e.preventDefault()
+        return false
+    })
+    canvas.$on("mouseup",e=>{
+        if(selection != null && old != null && selection.index == old.index)
+        {
+            // left button
+            if(e.button == 0)
+            {
+                voxel.add(selection.voxel.map((x,i)=>x+selection.direction[i]))
+                builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+                builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+            }
+            else if(e.button == 2)
+            {
+                voxel.remove(selection.index)
+                builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+                builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+            }
+        }
+    })
 
 
 
@@ -106,12 +112,9 @@ async function process(){
             builder.uniform_float.is_picking_step = 1
             
             clear()
-            for(const index in voxel.positions)
-            {
-                builder.attribute_matrix_4_float.color = voxel.pick_map[index].colors;
-                builder.uniform_3_float.transform = voxel.positions[index]
-                builder.drawSolid(voxel.face_indices[index])
-            }
+ 
+            builder.attribute_matrix_4_float.color = voxel.pick_map;
+            builder.drawSolid(voxel.geometry_indexes)
             pixel = builder.getPixel(mouse.x, mouse.y)
         })
 
@@ -132,20 +135,16 @@ async function process(){
             selection = data
         }
 
-        for(const index in voxel.positions)
-        {
-            builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel,index,setSelection)
-            builder.uniform_3_float.transform = voxel.positions[index]
-            builder.drawSolid(voxel.face_indices[index])
-        }
+        builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel,setSelection)
+        builder.drawSolid(voxel.geometry_indexes)
         gl.disable(gl.POLYGON_OFFSET_FILL);
 
         builder.uniform_float.enable_color_overlay = 1
 
         for(const index in voxel.positions)
         {
-            builder.uniform_3_float.transform = voxel.positions[index]
-            builder.drawLines(wireframeIndexes)
+            // builder.uniform_3_float.transform = voxel.positions[index]
+            // builder.drawLines(wireframeIndexes)
         }
 
         
