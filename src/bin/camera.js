@@ -13,7 +13,7 @@ function useCamera(canvas,builder,gl,getSelection)
             ];
     }
 
-    var proj_matrix = get_projection(40, canvas.width/canvas.height, 1, 100);
+    var proj_matrix = get_projection(40, canvas.width/canvas.height, 1, 1000);
     var mo_matrix = [ 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 ];
     var view_matrix = [ 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 ];
 
@@ -30,7 +30,7 @@ function useCamera(canvas,builder,gl,getSelection)
 
     /*================= Mouse events ======================*/
 
-    var AMORTIZATION = 0.95;
+    var AMORTIZATION = 0;//0.95;
     var drag = false;
     var old_x, old_y;
     var dX = 0, dY = 0;
