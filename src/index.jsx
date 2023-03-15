@@ -37,18 +37,22 @@ voxel.init()
 
 
 var selection = null
-var position = {x:0,y:0}
+
+var old = null
 canvas.$on("mousedown",e=>{
-    position.x = e.clientX
-    position.y = e.clientY
+    if(e.button == 1)
+    {
+        e.preventDefault()
+    }
+    old = selection
 })
+
 canvas.$on("contextmenu",e=>{
     e.preventDefault()
     return false
 })
 canvas.$on("mouseup",e=>{
-    var current = {x:e.clientX,y:e.clientY}
-    if(selection != null && current.x == position.x && current.y == position.y)
+    if(selection != null && old != null && selection.index == old.index)
     {
         // left button
         if(e.button == 0)
@@ -79,7 +83,7 @@ async function process(){
 
 
 
-    const {update, mouse} = useCamera(canvas, builder, gl)
+    const {update, mouse} = useCamera(canvas, builder, gl,()=>selection)
 
     function clear()
     {

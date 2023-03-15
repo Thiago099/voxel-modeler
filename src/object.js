@@ -129,6 +129,34 @@ const directions = [
     [1,0,0],
     [-1,0,0],
 ]
+
+
+function isTop(voxels,i,j)
+{
+    return voxels[i][0]+1 == voxels[j][0] && voxels[i][1] == voxels[j][1] && voxels[i][2] == voxels[j][2]
+}
+function isBottom(voxels,i,j)
+{
+    return voxels[i][0]-1 == voxels[j][0] && voxels[i][1] == voxels[j][1] && voxels[i][2] == voxels[j][2]
+}
+function isRight(voxels,i,j)
+{
+    return voxels[i][1]+1 == voxels[j][1] && voxels[i][0] == voxels[j][0] && voxels[i][2] == voxels[j][2]
+}
+function isLeft(voxels,i,j)
+{
+    return voxels[i][1]-1 == voxels[j][1] && voxels[i][0] == voxels[j][0] && voxels[i][2] == voxels[j][2]
+}
+function isFront(voxels,i,j)
+{
+    return voxels[i][2]+1 == voxels[j][2] && voxels[i][0] == voxels[j][0] && voxels[i][1] == voxels[j][1]
+}
+function isBack(voxels,i,j)
+{
+    return voxels[i][2]-1 == voxels[j][2] && voxels[i][0] == voxels[j][0] && voxels[i][1] == voxels[j][1]
+}
+
+
 class Voxel
 {
     constructor()
@@ -145,14 +173,89 @@ class Voxel
         this.build_face_indices()
         this.build_pick_map()
         this.build_positions()
+        this.build_compile()
+    }
+    build_compile()
+    {
+        var position_result = []
+        var index_result = []
+        var lazy_counter = 0
+        for(const i in this.faces)
+        {
+            var counter = 0;
+           for(const j in this.faces[i])
+           {
+            console.log(j)
+                position_result.push(...vertexPosition.slice(j*12, j*12+12).map((x,k) => x + this.positions[i][k%3]))
+                index_result.push(...vertexIndexes.slice(j*6, j*6+6).map(x => x+lazy_counter))
+                counter += 6
+            }
+            lazy_counter += counter
+        }
+        console.log(position_result.length/12)
+        this.position_compiled = position_result
+        this.index_compiled = index_result
     }
     add(voxel)
     {
+        const voxels = this.voxels
+        const faces = this.faces
         this.voxels.push(voxel)
-        this.init()
+        const j = voxels.length-1
+        const face = [1,1,1,1,1,1]
+        this.faces.push(face)
+        for(var i = 0; i < this.voxels.length-1; i++)
+        {
+            if(isTop(voxels,i,j))
+            {
+                faces[i][4] = 0;
+                faces[j][5] = 0;
+            }
+            if(isBottom(voxels,i,j))
+            {
+                faces[i][5] = 0;
+                faces[j][4] = 0;
+            }
+            
+            if(isRight(voxels,i,j))
+            {
+                faces[i][2] = 0;
+                faces[j][3] = 0;
+            }
+            if(isLeft(voxels,i,j))
+            {
+                faces[i][3] = 0;
+                faces[j][2] = 0;
+            }
+
+            if(isFront(voxels,i,j))
+            {
+                faces[i][0] = 0;
+                faces[j][1] = 0;
+            }
+            if(isBack(voxels,i,j))
+            {
+                faces[i][1] = 0;
+                faces[j][0] = 0;
+            }
+        }
+        var voxel_data = [];
+        for(const index in face)
+        {
+            const item = face[index];
+            if(item == 1)
+            {
+                voxel_data.push(...vertexIndexes.slice(index*6, index*6+6));
+            }
+        }
+        // this.face_indices.push(voxel_data);
+        this.build_face_indices()
+        this.build_pick_map()
+        this.build_positions()
     }
     remove(index)
     {
+        if(this.voxels.length <= 1) return
         this.voxels = this.voxels.filter((_,i) => i != index)
         this.init()
     }
@@ -218,34 +321,34 @@ class Voxel
         for(var i = 0; i < voxels.length; i++)
         for(var j = i+1; j < voxels.length; j++)
         {
-            if(voxels[i][0]+1 == voxels[j][0] && voxels[i][1] == voxels[j][1] && voxels[i][2] == voxels[j][2])
+            if(isTop(voxels,i,j))
             {
                 faces[i][4] = 0;
                 faces[j][5] = 0;
             }
-            if(voxels[i][0]-1 == voxels[j][0] && voxels[i][1] == voxels[j][1] && voxels[i][2] == voxels[j][2])
+            if(isBottom(voxels,i,j))
             {
                 faces[i][5] = 0;
                 faces[j][4] = 0;
             }
             
-            if(voxels[i][1]+1 == voxels[j][1] && voxels[i][0] == voxels[j][0] && voxels[i][2] == voxels[j][2])
+            if(isRight(voxels,i,j))
             {
                 faces[i][2] = 0;
                 faces[j][3] = 0;
             }
-            if(voxels[i][1]-1 == voxels[j][1] && voxels[i][0] == voxels[j][0] && voxels[i][2] == voxels[j][2])
+            if(isLeft(voxels,i,j))
             {
                 faces[i][3] = 0;
                 faces[j][2] = 0;
             }
 
-            if(voxels[i][2]+1 == voxels[j][2] && voxels[i][0] == voxels[j][0] && voxels[i][1] == voxels[j][1])
+            if(isFront(voxels,i,j))
             {
                 faces[i][0] = 0;
                 faces[j][1] = 0;
             }
-            if(voxels[i][2]-1 == voxels[j][2] && voxels[i][0] == voxels[j][0] && voxels[i][1] == voxels[j][1])
+            if(isBack(voxels,i,j))
             {
                 faces[i][1] = 0;
                 faces[j][0] = 0;

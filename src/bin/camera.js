@@ -1,5 +1,5 @@
 import { mat4 } from 'gl-matrix'
-function useCamera(canvas,builder,gl)
+function useCamera(canvas,builder,gl,getSelection)
 {
     /*==================== MATRIX ====================== */
 
@@ -36,6 +36,8 @@ function useCamera(canvas,builder,gl)
     var dX = 0, dY = 0;
 
     var mouseDown = function(e) {
+        //selection or middle button
+        if(getSelection() && e.button != 1) return
     drag = true;
     old_x = e.pageX, old_y = e.pageY;
     e.preventDefault();
