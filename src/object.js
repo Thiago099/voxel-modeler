@@ -180,23 +180,28 @@ class Voxel
     init()
     {
         this.build_faces()
-        this.build_face_indices()
-        this.build_pick_map()
-        this.build_positions()
         this.build_geometry()
     }
+
     build_geometry()
     {
+        var chroma = [];
+        var meta = [];
         var positions = []
         var index = []
         var normals = []
         var color = []
         var edge_index = []
         var distance = 0
+        var id = 1
         for(var i = 0; i < this.faces.length; i++)
         {
             var local_distance = 0
             var comp = 0
+
+            var start = id-1;
+            var colors = [];
+
             for(var j = 0; j < 6; j++)
             {
                 if(this.faces[i][j] == 0) 
@@ -213,14 +218,25 @@ class Voxel
                 {
                     color.push(1,1,1,1)
                 }
+
+                var current_id = id_2_color(id);
+                for(var k = 0; k < 4; k++)
+                {
+                    colors.push(...current_id);
+                }
+                id++
             }
             distance += local_distance
+            meta.push({start,end:id-1})
+            chroma.push(...colors);
         }
         this.geometry_vertexes = positions
         this.geometry_indexes = index
         this.geometry_normals = normals
         this.geometry_color = color
         this.geometry_edge_index = edge_index
+        this.pick_map = chroma;
+        this.pick_meta = meta;
 
     }
     add(voxel)
@@ -276,9 +292,6 @@ class Voxel
             }
         }
         // this.face_indices.push(voxel_data);
-        this.build_face_indices()
-        this.build_pick_map()
-        this.build_positions()
         this.build_geometry()
     }
     remove(index)
@@ -397,59 +410,9 @@ class Voxel
 
         this.faces = faces;
     }
-    build_face_indices()
-    {
-        const faces = this.faces;
-        var result = [];
-        for(var face of faces)
-        {
-            var voxel_data = [];
-            for(const index in face)
-            {
-                const item = face[index];
-                if(item == 1)
-                {
-                    voxel_data.push(...vertexIndexes.slice(index*6, index*6+6));
-                }
-            }
-            result.push(voxel_data);
-        }
-        this.face_indices = result;
-    }
-    build_positions()
-    {
-        const center = this.center;
-        this.positions = this.voxels.map(x=>x.map((x,i)=>(x*2)-center[i]));;
-    }
-    build_pick_map()
-    {
-        const faces = this.faces;
-        var chroma = [];
-        var meta = [];
-        var id = 1
-        for(var face of faces)
-        {
-            var start = id-1;
-            var colors = [];
-            for(const index in face)
-            {
-                const item = face[index];
-                if(item == 1)
-                {
-                    var current_id = id_2_color(id);
-                    id++
-                    for(var j = 0; j < 4; j++)
-                    {
-                        colors.push(...current_id);
-                    }
-                }
-            }
-            meta.push({start,end:id-1})
-            chroma.push(...colors);
-        }
-        this.pick_map = chroma;
-        this.pick_meta = meta;
-    }
+
+
+
     get center()
     {
         const boundary = this.boundary;

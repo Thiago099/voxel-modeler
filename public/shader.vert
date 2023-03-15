@@ -6,7 +6,7 @@ uniform mat4 projection_matrix;
 uniform mat4 view_matrix;
 uniform mat4 model_matrix;
 uniform mat4 uNormalMatrix;
-uniform float is_picking_step;
+uniform float disable_lighting;
 uniform vec3 transform;
 
 varying highp vec4 vColor;
@@ -17,7 +17,7 @@ void main(void) {
     gl_Position = projection_matrix*view_matrix*model_matrix*vec4(position+transform, 1.);
     vColor = color;
 
-    if(is_picking_step == 1.0)
+    if(disable_lighting == 1.0)
     {
         vLighting = vec3(1.0, 1.0, 1.0);
     }

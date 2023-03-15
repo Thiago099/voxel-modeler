@@ -109,8 +109,7 @@ async function process(){
         
         builder.buffer(()=>{
             gl.clearColor(0, 0, 0, 0);
-            builder.uniform_float.is_picking_step = 1
-            
+            builder.uniform_float.disable_lighting = 1
             clear()
             builder.attribute_matrix_4_float.color = voxel.pick_map;
             builder.drawSolid(voxel.geometry_indexes)
@@ -119,7 +118,7 @@ async function process(){
 
         
 
-        builder.uniform_float.is_picking_step = 0
+        builder.uniform_float.disable_lighting = 0
         gl.clearColor(0.5, 0.5, 0.5, 0.9);
 
         gl.enable(gl.POLYGON_OFFSET_FILL);
@@ -135,10 +134,7 @@ async function process(){
         gl.disable(gl.POLYGON_OFFSET_FILL);
 
         builder.uniform_float.enable_color_overlay = 1
-
         builder.drawLines(voxel.geometry_edge_index)
-
-        
         builder.uniform_float.enable_color_overlay = 0
         
     })
