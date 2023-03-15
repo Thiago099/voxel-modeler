@@ -173,28 +173,6 @@ class Voxel
         this.build_face_indices()
         this.build_pick_map()
         this.build_positions()
-        this.build_compile()
-    }
-    build_compile()
-    {
-        var position_result = []
-        var index_result = []
-        var lazy_counter = 0
-        for(const i in this.faces)
-        {
-            var counter = 0;
-           for(const j in this.faces[i])
-           {
-            console.log(j)
-                position_result.push(...vertexPosition.slice(j*12, j*12+12).map((x,k) => x + this.positions[i][k%3]))
-                index_result.push(...vertexIndexes.slice(j*6, j*6+6).map(x => x+lazy_counter))
-                counter += 6
-            }
-            lazy_counter += counter
-        }
-        console.log(position_result.length/12)
-        this.position_compiled = position_result
-        this.index_compiled = index_result
     }
     add(voxel)
     {
