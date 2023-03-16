@@ -241,63 +241,12 @@ class Voxel
     }
     add(...voxel)
     {
-        // const voxels = this.voxels
-        // const faces = this.faces
         this.voxels.push(...voxel)
-        // const j = voxels.length-1
-        // const face = [1,1,1,1,1,1]
-        // this.faces.push(face)
-        // for(var i = 0; i < this.voxels.length-1; i++)
-        // {
-        //     if(isTop(voxels,i,j))
-        //     {
-        //         faces[i][4] = 0;
-        //         faces[j][5] = 0;
-        //     }
-        //     if(isBottom(voxels,i,j))
-        //     {
-        //         faces[i][5] = 0;
-        //         faces[j][4] = 0;
-        //     }
-            
-        //     if(isRight(voxels,i,j))
-        //     {
-        //         faces[i][2] = 0;
-        //         faces[j][3] = 0;
-        //     }
-        //     if(isLeft(voxels,i,j))
-        //     {
-        //         faces[i][3] = 0;
-        //         faces[j][2] = 0;
-        //     }
-
-        //     if(isFront(voxels,i,j))
-        //     {
-        //         faces[i][0] = 0;
-        //         faces[j][1] = 0;
-        //     }
-        //     if(isBack(voxels,i,j))
-        //     {
-        //         faces[i][1] = 0;
-        //         faces[j][0] = 0;
-        //     }
-        // }
-        // var voxel_data = [];
-        // for(const index in face)
-        // {
-        //     const item = face[index];
-        //     if(item == 1)
-        //     {
-        //         voxel_data.push(...vertexIndexes.slice(index*6, index*6+6));
-        //     }
-        // }
-        // this.face_indices.push(voxel_data);
-        this.build_faces()
+        this.rebuild_add_faces(voxel)
         this.build_geometry()
     }
     remove(...delete_voxels)
     {
-        console.log(delete_voxels)
         for(const voxel of delete_voxels)
         {
             for(var i = 0; i < this.voxels.length; i++)
@@ -680,6 +629,91 @@ class Voxel
         }
         return result;
         
+    }
+    rebuild_add_faces(voxel)
+    {
+        const voxels = this.voxels
+        const faces = this.faces
+        var start = this.voxels.length - voxel.length
+        for(var j = 0; j < voxel.length; j++)
+        {
+            const face = [1,1,1,1,1,1]
+            this.faces.push(face)
+
+            for(var i = 0; i < start; i++)
+            {
+                if(isTop(voxels,i,j+start))
+                {
+                    faces[i][4] = 0;
+                    face[5] = 0;
+                }
+                if(isBottom(voxels,i,j+start))
+                {
+                    faces[i][5] = 0;
+                    face[4] = 0;
+                }
+                
+                if(isRight(voxels,i,j+start))
+                {
+                    faces[i][2] = 0;
+                    face[3] = 0;
+                }
+                if(isLeft(voxels,i,j+start))
+                {
+                    faces[i][3] = 0;
+                    face[2] = 0;
+                }
+    
+                if(isFront(voxels,i,j+start))
+                {
+                    faces[i][0] = 0;
+                    face[1] = 0;
+                }
+                if(isBack(voxels,i,j+start))
+                {
+                    faces[i][1] = 0;
+                    face[0] = 0;
+                }
+            }
+        }
+        for(var j = 0; j < voxel.length; j++)
+        {
+            for(var i = j + 1; i < voxel.length; i++)
+            {
+                if(isTop(voxels,i+start,j+start))
+                {
+                    faces[i+start][4] = 0;
+                    faces[j+start][5] = 0;
+                }
+                if(isBottom(voxels,i+start,j+start))
+                {
+                    faces[i+start][5] = 0;
+                    faces[j+start][4] = 0;
+                }
+
+                if(isRight(voxels,i+start,j+start))
+                {
+                    faces[i+start][2] = 0;
+                    faces[j+start][3] = 0;
+                }
+                if(isLeft(voxels,i+start,j+start))
+                {
+                    faces[i+start][3] = 0;
+                    faces[j+start][2] = 0;
+                }
+
+                if(isFront(voxels,i+start,j+start))
+                {
+                    faces[i+start][0] = 0;
+                    faces[j+start][1] = 0;
+                }
+                if(isBack(voxels,i+start,j+start))
+                {
+                    faces[i+start][1] = 0;
+                    faces[j+start][0] = 0;
+                }
+            }
+        }
     }
     build_faces()
     {

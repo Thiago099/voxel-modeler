@@ -3,7 +3,6 @@ import './tool-selection.css'
 
 function ToolSelector(data,callback)
 {
-    console.log(data)
     var result = []
 
     const selected = state({name: "Point"})
