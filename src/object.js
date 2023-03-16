@@ -239,67 +239,345 @@ class Voxel
         this.pick_meta = meta;
 
     }
-    add(voxel)
+    add(...voxel)
     {
-        const voxels = this.voxels
-        const faces = this.faces
-        this.voxels.push(voxel)
-        const j = voxels.length-1
-        const face = [1,1,1,1,1,1]
-        this.faces.push(face)
-        for(var i = 0; i < this.voxels.length-1; i++)
-        {
-            if(isTop(voxels,i,j))
-            {
-                faces[i][4] = 0;
-                faces[j][5] = 0;
-            }
-            if(isBottom(voxels,i,j))
-            {
-                faces[i][5] = 0;
-                faces[j][4] = 0;
-            }
+        // const voxels = this.voxels
+        // const faces = this.faces
+        this.voxels.push(...voxel)
+        // const j = voxels.length-1
+        // const face = [1,1,1,1,1,1]
+        // this.faces.push(face)
+        // for(var i = 0; i < this.voxels.length-1; i++)
+        // {
+        //     if(isTop(voxels,i,j))
+        //     {
+        //         faces[i][4] = 0;
+        //         faces[j][5] = 0;
+        //     }
+        //     if(isBottom(voxels,i,j))
+        //     {
+        //         faces[i][5] = 0;
+        //         faces[j][4] = 0;
+        //     }
             
-            if(isRight(voxels,i,j))
-            {
-                faces[i][2] = 0;
-                faces[j][3] = 0;
-            }
-            if(isLeft(voxels,i,j))
-            {
-                faces[i][3] = 0;
-                faces[j][2] = 0;
-            }
+        //     if(isRight(voxels,i,j))
+        //     {
+        //         faces[i][2] = 0;
+        //         faces[j][3] = 0;
+        //     }
+        //     if(isLeft(voxels,i,j))
+        //     {
+        //         faces[i][3] = 0;
+        //         faces[j][2] = 0;
+        //     }
 
-            if(isFront(voxels,i,j))
-            {
-                faces[i][0] = 0;
-                faces[j][1] = 0;
-            }
-            if(isBack(voxels,i,j))
-            {
-                faces[i][1] = 0;
-                faces[j][0] = 0;
-            }
-        }
-        var voxel_data = [];
-        for(const index in face)
-        {
-            const item = face[index];
-            if(item == 1)
-            {
-                voxel_data.push(...vertexIndexes.slice(index*6, index*6+6));
-            }
-        }
+        //     if(isFront(voxels,i,j))
+        //     {
+        //         faces[i][0] = 0;
+        //         faces[j][1] = 0;
+        //     }
+        //     if(isBack(voxels,i,j))
+        //     {
+        //         faces[i][1] = 0;
+        //         faces[j][0] = 0;
+        //     }
+        // }
+        // var voxel_data = [];
+        // for(const index in face)
+        // {
+        //     const item = face[index];
+        //     if(item == 1)
+        //     {
+        //         voxel_data.push(...vertexIndexes.slice(index*6, index*6+6));
+        //     }
+        // }
         // this.face_indices.push(voxel_data);
+        this.build_faces()
         this.build_geometry()
     }
-    remove(index)
+    remove(...delete_voxels)
     {
-        if(this.voxels.length <= 1) return
-        this.voxels = this.voxels.filter((_,i) => i != index)
-        this.init()
+        console.log(delete_voxels)
+        for(const voxel of delete_voxels)
+        {
+            for(var i = 0; i < this.voxels.length; i++)
+            {
+                if(this.voxels[i][0] == voxel[0] && this.voxels[i][1] == voxel[1] && this.voxels[i][2] == voxel[2])
+                {
+                    this.voxels.splice(i,1)
+                    break
+                }
+            }
+            if(this.voxels.length <= 1) break
+
+        }
+        this.build_faces()
+        this.build_geometry()
     }
+  
+
+    get_plane_color(ids,selected_direction)
+    {
+        var result = []
+        for(const index in this.pick_meta)
+        {
+            const face = this.faces[index]
+            var direction_id = 0
+            for(var i = 0; i < face.length; i++)
+            {
+                if(face[i] == 0)
+                {
+                    direction_id += 1
+                    continue
+                }
+                if(ids.includes(index))
+                {
+                    if(direction_id == selected_direction)
+                    {
+                        for(var j = 0; j < 4; j++)
+                        {
+                            result.push(1,0.6,0.6,1)
+                        }
+                    }
+                    else
+                    {
+                        for(var j = 0; j < 4; j++)
+                        {
+                            result.push(1,0.9,0.9,1)
+                        }
+                    }
+                }
+                else
+                {
+                    for(var j = 0; j < 4; j++)
+                    {
+                        result.push(1,1,1,1)
+                    }
+                }
+                direction_id += 1
+            }
+        }
+        return result
+    }
+    get_plane(voxel, direction)
+    {
+        var result = []
+        for(const id in this.voxels)
+        {
+            const item = this.voxels[id]
+            // if is not the same
+            var match = true
+            for(const index in direction)
+            {
+                if(direction[index] != 0)
+                {
+                    if(voxel[index] != item[index])
+                    {
+                        match = false
+                        break
+                    }
+                }
+            }
+            if(match)
+            {
+                var new_position = this.voxels[id].map((x,i) => x + direction[i])
+                if(!this.voxels.some(x => x[0] == new_position[0] && x[1] == new_position[1] && x[2] == new_position[2]))
+                result.push(id)
+            }
+        }
+        return result
+    }
+    get_contiguous(ids,voxel,direction)
+    {
+        var result = []
+        const voxels = this.voxels
+        function loop(voxel)
+        {
+            for(const id of ids)
+            {
+                const item = voxels[id]
+                // if is not the same
+                var match = true
+                for(const index in direction)
+                {
+                    if(direction[index] != 0)
+                    {
+                        if(voxel[index] != item[index])
+                        {
+                            match = false
+                            break
+                        }
+                    }
+                    else
+                    {
+                        if(Math.abs(voxel[index] - item[index]) > 1)
+                        {
+                            match = false
+                            break
+                        }
+                    }
+                }
+                if(match)
+                {
+                    var new_position = voxels[id].map((x,i) => x + direction[i])
+                    if(!voxels.some(x => x[0] == new_position[0] && x[1] == new_position[1] && x[2] == new_position[2]) && !result.includes(id))
+                    {
+                        result.push(id)
+                        loop(voxels[id])
+                    }
+                }
+            }
+        }
+        loop(voxel)
+        return result
+    }
+    get_vertical_line(voxel, direction, type)
+    {
+        var result = []
+        for(const id in this.voxels)
+        {
+            const item = this.voxels[id]
+            // if is not the same
+            var match = true
+            for(const index in direction)
+            {
+                if(direction[index] != 0)
+                {
+                    if(voxel[index] != item[index])
+                    {
+                        match = false
+                        break
+                    }
+                }
+                else
+                {
+                    if(voxel[index] != item[index] && index == 0 )
+                    {
+                        match = false
+                        break
+                    }
+                }
+            }
+            if(match)
+            {
+                var new_position = this.voxels[id].map((x,i) => x + direction[i])
+                if(!this.voxels.some(x => x[0] == new_position[0] && x[1] == new_position[1] && x[2] == new_position[2]))
+                result.push(id)
+            }
+        }
+        return result
+    }
+    get_horizontal_line(voxel, direction, type)
+    {
+        var result = []
+        for(const id in this.voxels)
+        {
+            const item = this.voxels[id]
+            // if is not the same
+            var match = true
+            for(const index in direction)
+            {
+                if(direction[index] != 0)
+                {
+                    if(voxel[index] != item[index])
+                    {
+                        match = false
+                        break
+                    }
+                }
+                else
+                {
+                    if(voxel[index] != item[index] && index == 1)
+                    {
+                        match = false
+                        break
+                    }
+                }
+            }
+            if(match)
+            {
+                var new_position = this.voxels[id].map((x,i) => x + direction[i])
+                if(!this.voxels.some(x => x[0] == new_position[0] && x[1] == new_position[1] && x[2] == new_position[2]))
+                result.push(id)
+            }
+        }
+        return result
+    }
+    highlight_plane(data,setSelection,type,contiguous)
+    {
+        var faceIndex = color_2_id(data)
+        var result = []
+        var id = 0
+        for(const index in this.pick_meta)
+        {
+            const face = this.faces[index]
+            const map = this.pick_meta[index]
+            if(faceIndex >= map.start && faceIndex < map.end)
+            {
+                var direction_id = 0
+                for(var i = 0; i < face.length; i++)
+                {
+                    if(face[i] == 0)
+                    {
+                        direction_id += 1
+                        continue
+                    }
+
+                    if(faceIndex == id)
+                    {
+
+
+                        var ids;
+                        switch(type)
+                        {
+                            case "Plane":
+                                ids = this.get_plane(this.voxels[index],directions[direction_id])
+                                break
+                            case "Horizontal line":
+                                ids = this.get_horizontal_line(this.voxels[index],directions[direction_id])
+                                break
+                            case "Vertical line":
+                                ids = this.get_vertical_line(this.voxels[index],directions[direction_id])
+                                break
+                        }
+                        if(contiguous)
+                        {
+                            ids = this.get_contiguous(ids,this.voxels[index],directions[direction_id])
+                        }
+
+                        setSelection({
+                            voxel:ids.map(x=>this.voxels[x]),
+                            direction:directions[direction_id],
+                            index:index,
+                        })
+
+                        return this.get_plane_color(ids,direction_id)
+                    }
+                    direction_id += 1
+                    id += 1
+                }
+            }
+            else
+            {
+                for(var i = 0; i < face.length; i++)
+                {
+                    if(face[i] == 0)
+                    {
+                        continue
+                    }
+
+                    for(var j = 0; j < 4; j++)
+                    {
+                        result.push(1,1,1,1)
+                    }
+                    id += 1
+                }
+            }
+
+        }
+        return result;
+    }
+
     get_highlight(data,setSelection)
     {
         var faceIndex = color_2_id(data)
@@ -322,11 +600,13 @@ class Voxel
 
                     if(faceIndex == id)
                     {
+
                         setSelection({
-                            voxel:this.voxels[index],
+                            voxel:[this.voxels[index]],
                             direction:directions[direction_id],
                             index:index,
                         })
+
                         for(var j = 0; j < 4; j++)
                         {
                             result.push(1,0.6,0.6,1)

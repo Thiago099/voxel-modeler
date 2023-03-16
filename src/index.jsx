@@ -5,7 +5,25 @@ import { Voxel,vertexPosition, vertexNormals,wireframeIndexes } from './object.j
 import { webgl } from './bin/gl-builder'
 import { useCamera } from './bin/camera'
 import { step } from './bin/utils'
-
+import { ToolSelector } from './components/tool-selection/tool-selection'
+import { ToggleButton } from './components/toggle-button/toggle-button'
+const tools = [
+    {
+        name: "Point"
+    },
+    {
+        name: "Plane"
+    },
+    {
+        name: "Horizontal line"
+    },
+    {
+        name: "Vertical line"
+    },
+]
+var selected_tool = "Point"
+var contiguous = true
+var wireframe = true
 const canvas = ref()
 const fps = ref()
 const main = 
@@ -26,6 +44,15 @@ const main =
         </p>
         <p>
             FPS: <span ref={fps}></span>
+        </p>
+        <p>
+            {ToolSelector(tools, x => selected_tool = x)}
+        </p>
+        <p>
+            {ToggleButton("Contiguous",x=>contiguous = x)}
+        </p>
+        <p>
+            {ToggleButton("Wireframe",x=>wireframe = x)}
         </p>
     </div>
 </div>
@@ -77,13 +104,13 @@ async function process(){
             // left button
             if(e.button == 0)
             {
-                voxel.add(selection.voxel.map((x,i)=>x+selection.direction[i]))
+                voxel.add(...selection.voxel.map(u=>u.map((x,i)=>x+selection.direction[i])))
                 builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
                 builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
             }
             else if(e.button == 2)
             {
-                voxel.remove(selection.index)
+                voxel.remove(...selection.voxel)
                 builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
                 builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
             }
@@ -132,13 +159,23 @@ async function process(){
         selection = null
 
 
-        builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel,data=>selection = data)
+        if(selected_tool == "Point")
+        {
+            builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel,data=>selection = data)
+        }
+        else
+        {
+            builder.attribute_matrix_4_float.color = voxel.highlight_plane(pixel,data=>selection = data,selected_tool,contiguous)
+        }
         builder.drawSolid(voxel.geometry_indexes)
         gl.disable(gl.POLYGON_OFFSET_FILL);
 
-        builder.uniform_float.enable_color_overlay = 1
-        builder.drawLines(voxel.geometry_edge_index)
-        builder.uniform_float.enable_color_overlay = 0
+        if(wireframe)
+        {
+            builder.uniform_float.enable_color_overlay = 1
+            builder.drawLines(voxel.geometry_edge_index)
+            builder.uniform_float.enable_color_overlay = 0
+        }
         
     })
 }
