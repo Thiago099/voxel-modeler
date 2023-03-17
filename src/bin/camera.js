@@ -38,6 +38,9 @@ function useCamera(canvas,builder,gl,getSelection)
     var mouseDown = function(e) {
         //selection or middle button
         if(getSelection() && e.button != 1) return
+
+
+
     drag = true;
     old_x = e.pageX, old_y = e.pageY;
     e.preventDefault();

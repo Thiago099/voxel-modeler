@@ -22,114 +22,114 @@ function color_2_id(color)
 
 const vertexNormals = [
     // Front
-    0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+    [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0],
 
     // Back
-    0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0,
+    [0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0],
 
     // Top
-    0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+    [0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0],
 
     // Bottom
-    0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0,
+    [0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0],
 
     // Right
-    1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+    [1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0],
 
     // Left
-    -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
+    [-1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0],
   ];
 
 const vertexPosition = [
     // Front face
-    -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
+    [-1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0],
 
     // Back face
-    -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0,
+    [-1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0],
 
     // Top face
-    -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0,
+    [-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0],
 
     // Bottom face
-    -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0,
+    [-1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0],
 
     // Right face
-    1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0,
+    [1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0],
 
     // Left face
-    -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0,
+    [-1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0],
 ];
 
 const vertexIndexes = [
-    0,
+    [0,
     1,
     2,
     0,
     2,
-    3, // front
-    4,
+    3], // front
+    [4,
     5,
     6,
     4,
     6,
-    7, // back
-    8,
+    7], // back
+    [8,
     9,
     10,
     8,
     10,
-    11, // top
-    12,
+    11], // top
+    [12,
     13,
     14,
     12,
     14,
-    15, // bottom
-    16,
+    15], // bottom
+    [16,
     17,
     18,
     16,
     18,
-    19, // right
-    20,
+    19], // right
+    [20,
     21,
     22,
     20,
     22,
-    23, // left
+    23], // left
 ];
 
 const wireframeIndexes = [
     //front
-    0, 1,
+    [0, 1,
     1, 2,
     2, 3,
-    3, 0,
+    3, 0],
     //back
-    4, 5,
+    [4, 5,
     5, 6,
     6, 7,
-    7, 4,
+    7, 4],
     //top
-    8, 9,
+    [8, 9,
     9, 10,
     10, 11,
-    11, 8,
+    11, 8],
     //bottom
-    12, 13,
+    [12, 13,
     13, 14,
     14, 15,
-    15, 12,
+    15, 12],
     //right
-    16, 17,
+    [16, 17,
     17, 18,
     18, 19,
-    19, 16,
+    19, 16],
     //left
-    20, 21,
+    [20, 21,
     21, 22,
     22, 23,
-    23, 20,
+    23, 20],
 ];
 const directions = [
     [0,0,1],
@@ -138,6 +138,13 @@ const directions = [
     [0,-1,0],
     [1,0,0],
     [-1,0,0],
+]
+
+const baseColor = [
+    1,1,1,1,
+    1,1,1,1,
+    1,1,1,1,
+    1,1,1,1,
 ]
 
 
@@ -209,15 +216,12 @@ class Voxel
                     comp += 4
                     continue
                 }
-                positions.push(...vertexPosition.slice(j*12,j*12+12).map((x,k) => x + (this.voxels[i][k%3]*2) - this.center[k%3]))
-                normals.push(...vertexNormals.slice(j*12,j*12+12))
-                index.push(...vertexIndexes.slice(j*6,j*6+6).map(x => x + distance - comp))
-                edge_index.push(...wireframeIndexes.slice(j*8,j*8+8).map(x => x + distance - comp))
+                positions.push(...vertexPosition[j].map((x,k) => x + (this.voxels[i][k%3]*2) - this.center[k%3]))
+                normals.push(...vertexNormals[j])
+                edge_index.push(...wireframeIndexes[j].map(x => x + distance - comp))
+                index.push(...vertexIndexes[j].map(x => x + distance - comp))
+                color.push(...baseColor)
                 local_distance += 4
-                for(var k = 0; k < 4; k++)
-                {
-                    color.push(1,1,1,1)
-                }
 
                 var current_id = id_2_color(id);
                 for(var k = 0; k < 4; k++)
@@ -230,6 +234,8 @@ class Voxel
             meta.push({start,end:id-1})
             chroma.push(...colors);
         }
+        this.id = id
+        this.distance = distance
         this.geometry_vertexes = positions
         this.geometry_indexes = index
         this.geometry_normals = normals
@@ -242,8 +248,27 @@ class Voxel
     add(...voxel)
     {
         this.voxels.push(...voxel)
-        this.rebuild_add_faces(voxel)
-        this.build_geometry()
+        this.init()
+    }
+    duplicate()
+    {
+        //replace each voxel with 8 new voxels
+        var new_voxels = []
+        for(const voxel of this.voxels)
+        {
+            const delta_v = [voxel[0]*2,voxel[1]*2,voxel[2]*2]
+            new_voxels.push(...[
+                [delta_v[0],delta_v[1],delta_v[2]],
+                [delta_v[0]+1,delta_v[1],delta_v[2]],
+                [delta_v[0],delta_v[1]+1,delta_v[2]],
+                [delta_v[0]+1,delta_v[1]+1,delta_v[2]],
+                [delta_v[0],delta_v[1],delta_v[2]+1],
+                [delta_v[0]+1,delta_v[1],delta_v[2]+1],
+                [delta_v[0],delta_v[1]+1,delta_v[2]+1],
+                [delta_v[0]+1,delta_v[1]+1,delta_v[2]+1],
+            ])
+        }
+        this.voxels = new_voxels
     }
     remove(...delete_voxels)
     {
