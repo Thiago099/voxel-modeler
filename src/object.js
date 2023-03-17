@@ -173,23 +173,14 @@ function isBack(voxels,i,j)
     return voxels[i][2]-1 == voxels[j][2] && voxels[i][0] == voxels[j][0] && voxels[i][1] == voxels[j][1]
 }
 
-
 class Voxel
 {
     constructor()
     {
         this.voxels = [
             [0,0,0],
-            [1,0,0],
-            [1,1,0],
         ]
     }
-    init()
-    {
-        this.build_faces()
-        this.build_geometry()
-    }
-
     build_geometry()
     {
         var chroma = [];
@@ -201,7 +192,7 @@ class Voxel
         var edge_index = []
         var distance = 0
         var id = 1
-        for(var i = 0; i < this.faces.length; i++)
+        for(var i = 0; i < this.voxels.length; i++)
         {
             var local_distance = 0
             var comp = 0
@@ -243,7 +234,13 @@ class Voxel
         this.geometry_edge_index = edge_index
         this.pick_map = chroma;
         this.pick_meta = meta;
-
+    }
+    init()
+    {
+        this.build_boundary()
+        this.build_center()
+        this.build_faces()
+        this.build_geometry()
     }
     add(...voxel)
     {
@@ -287,8 +284,7 @@ class Voxel
 
 
         }
-        this.build_faces()
-        this.build_geometry()
+        this.init()
     }
   
 
@@ -813,15 +809,12 @@ class Voxel
 
         this.faces = faces;
     }
-
-
-
-    get center()
+    build_center()
     {
         const boundary = this.boundary;
-        return boundary[0].map((x, i) => x + boundary[1][i]);
+        this.center = boundary[0].map((x, i) => x + boundary[1][i]);;
     }
-    get boundary()
+    build_boundary()
     {
         const voxels = this.voxels;
         var min = voxels[0];
@@ -832,7 +825,7 @@ class Voxel
             min = min.map((x, j) => Math.min(x, voxels[i][j]));
             max = max.map((x, j) => Math.max(x, voxels[i][j]));
         }
-        return [min, max];
+        this.boundary = [min, max];
     }
 }
 

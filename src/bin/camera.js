@@ -119,8 +119,11 @@ function useCamera(canvas,builder,gl,getSelection)
 
     /*=================== Drawing =================== */
 
-    var THETA = 0,
-    PHI = 0;
+    // var THETA = 0,
+    // PHI = 0;
+
+    var THETA = .8,
+    PHI = .8;
 
     function update()
     {

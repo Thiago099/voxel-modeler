@@ -11,6 +11,8 @@ import { ActionButton } from './components/action-button/action-button'
 
 
 var subdivide = null
+var save = null
+var load = null
 const tools = [
     {
         name: "Point"
@@ -35,31 +37,39 @@ const main =
     <canvas ref={canvas}></canvas>
     <div class="info">
         <p>
-            Click and drag to rotate
-        </p>
-        <p>
-            Mouse wheel to zoom
-        </p>
-        <p>
-            left click to add a voxel
-        </p>
-        <p>
-            right click to remove a voxel
-        </p>
-        <p>
             FPS: <span ref={fps}></span>
         </p>
         <p>
+            <h3>
+                Tool
+            </h3>
             {ToolSelector(tools, x => selected_tool = x)}
         </p>
         <p>
+            <h3>
+                Tool options
+            </h3>
             {ToggleButton("Contiguous",x=>contiguous = x)}
         </p>
         <p>
+            <h3>
+                View
+            </h3>
             {ToggleButton("Wireframe",x=>wireframe = x)}
         </p>
         <p>
+            <h3>
+                Actions
+            </h3>
             {ActionButton("Subdivide",()=>subdivide())}
+        </p>
+        <p>
+            <h3>
+                Persistence
+            </h3>
+            {ActionButton("Save",()=>save())}
+            {ActionButton("Load",()=>load())}
+
         </p>
     </div>
 </div>
@@ -85,9 +95,51 @@ async function process(){
     builder.antialias = false
 
 
-    builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
-    builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+
     builder.uniform_4_float.color_overlay = [0.0,0.0,0.0,1.0]
+
+
+    save = () => {
+        var data = JSON.stringify(voxel.voxels)
+        var blob = new Blob([data], {type: "application/json"});
+        var url  = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.download    = "voxel.json";
+        a.href        = url;
+        a.textContent = "Download";
+        a.click();
+        a.remove()
+    }
+    load = async () => {
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.onchange = e => {
+            var file = e.target.files[0];
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var contents = e.target.result;
+                voxel.voxels = JSON.parse(contents)
+                voxel.init()
+
+                var [min, max] = voxel.boundary
+
+                var x = min[0] - max[0]
+                var y = min[1] - max[1]
+                var z = min[2] - max[2]
+
+                var max = Math.abs(Math.max(x,y,z))
+
+                console.log(max)
+                zoom(max)
+
+                builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+                builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+            }
+            reader.readAsText(file);
+        }
+        input.click();
+        input.remove()
+    }
 
 
     
@@ -151,6 +203,9 @@ async function process(){
     step((a) => {
         fps.$html(a)
         update()
+
+        builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+        builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
 
         var pixel = null
         
