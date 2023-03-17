@@ -400,9 +400,11 @@ class Voxel
                 }
                 if(match)
                 {
-                    if(!visited.has(id))
+                    var new_position = voxels[id].map((x,i) => x + direction[i])
+                    var new_pid = `${new_position[0]},${new_position[1]},${new_position[2]}`
+                    if(!visited.has(new_pid))
                     {
-                        visited.add(id)
+                        visited.add(new_pid)
                         result.push(id)
                         loop(voxels[id])
                     }
