@@ -28,7 +28,7 @@ const tools = [
     },
 ]
 var selected_tool = "Point"
-var contiguous = false
+var contiguous = true
 var wireframe = true
 const canvas = ref()
 const fps = ref()

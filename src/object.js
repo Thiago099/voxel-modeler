@@ -371,6 +371,7 @@ class Voxel
     {
         var result = []
         const voxels = this.voxels
+        const visited = new Set();
         function loop(voxel)
         {
             for(const id of ids)
@@ -399,9 +400,9 @@ class Voxel
                 }
                 if(match)
                 {
-                    var new_position = voxels[id].map((x,i) => x + direction[i])
-                    if(!voxels.some(x => x[0] == new_position[0] && x[1] == new_position[1] && x[2] == new_position[2]) && !result.includes(id))
+                    if(!visited.has(id))
                     {
+                        visited.add(id)
                         result.push(id)
                         loop(voxels[id])
                     }
