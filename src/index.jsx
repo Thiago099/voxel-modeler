@@ -7,6 +7,10 @@ import { useCamera } from './bin/camera'
 import { step } from './bin/utils'
 import { ToolSelector } from './components/tool-selection/tool-selection'
 import { ToggleButton } from './components/toggle-button/toggle-button'
+import { ActionButton } from './components/action-button/action-button'
+
+
+var subdivide = null
 const tools = [
     {
         name: "Point"
@@ -54,6 +58,9 @@ const main =
         <p>
             {ToggleButton("Wireframe",x=>wireframe = x)}
         </p>
+        <p>
+            {ActionButton("Subdivide",()=>subdivide())}
+        </p>
     </div>
 </div>
 
@@ -81,6 +88,9 @@ async function process(){
     builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
     builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
     builder.uniform_4_float.color_overlay = [0.0,0.0,0.0,1.0]
+
+
+    
 
     
     var selection = null
@@ -119,7 +129,14 @@ async function process(){
 
 
 
-    const {update, mouse} = useCamera(canvas, builder, gl,()=>selection)
+    const {update, mouse,zoom} = useCamera(canvas, builder, gl,()=>selection)
+
+    subdivide = () => {
+        voxel.subdivide()
+        builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+        builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+        zoom(2)
+    }
 
     function clear()
     {

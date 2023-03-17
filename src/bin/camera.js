@@ -152,7 +152,7 @@ function useCamera(canvas,builder,gl,getSelection)
         builder.attribute_matrix_4_mat_float.view_matrix = view_matrix
         builder.attribute_matrix_4_mat_float.model_matrix = mo_matrix
     }
-    return {update,mouse}
+    return {update,mouse,zoom}
 }
 
 

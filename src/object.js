@@ -250,7 +250,7 @@ class Voxel
         this.voxels.push(...voxel)
         this.init()
     }
-    duplicate()
+    subdivide()
     {
         //replace each voxel with 8 new voxels
         var new_voxels = []
@@ -269,6 +269,7 @@ class Voxel
             ])
         }
         this.voxels = new_voxels
+        this.init()
     }
     remove(...delete_voxels)
     {
