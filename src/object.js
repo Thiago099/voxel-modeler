@@ -275,6 +275,7 @@ class Voxel
     {
         for(const voxel of delete_voxels)
         {
+            if(this.voxels.length <= 1) break
             for(var i = 0; i < this.voxels.length; i++)
             {
                 if(this.voxels[i][0] == voxel[0] && this.voxels[i][1] == voxel[1] && this.voxels[i][2] == voxel[2])
@@ -283,7 +284,7 @@ class Voxel
                     break
                 }
             }
-            if(this.voxels.length <= 1) break
+
 
         }
         this.build_faces()
