@@ -459,6 +459,20 @@ class Voxel
                     }
                 }
             }
+            else if(dir == 1)
+            {
+                for(const index in direction)
+                {
+                    if(direction[index] == 0)
+                    {
+                        if(voxel[index] != item[index] && index == 0 )
+                        {
+                            match = false
+                            break
+                        }
+                    }
+                }
+            }
             else
             {
                 match = false
@@ -482,20 +496,18 @@ class Voxel
             const item = this.voxels[id]
             // if is not the same
             var match = true
+            var dir = -1
             for(const index in direction)
             {
                 if(direction[index] != 0)
                 {
+                    dir = index
                     if(voxel[index] != item[index])
                     {
                         match = false
                         break
                     }
-                    if(index == 1)
-                    {
-                        match = false
-                        break
-                    }
+
                 }
                 else
                 {
@@ -503,6 +515,20 @@ class Voxel
                     {
                         match = false
                         break
+                    }
+                }
+            }
+            if(dir == 1)
+            {
+                for(const index in direction)
+                {
+                    if(direction[index] == 0)
+                    {
+                        if(voxel[index] != item[index] && index == 2 )
+                        {
+                            match = false
+                            break
+                        }
                     }
                 }
             }
