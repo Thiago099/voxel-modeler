@@ -818,9 +818,8 @@ class Voxel
             }
         }
         for(var i = 0; i < voxels.length; i++)
-        for(var j = i+1; i < voxels.length; i++)
+        for(var j = i+1; j < voxels.length; j++)
         {
-            if(j >= voxels.length)break
             if(isTop(voxels[i],voxels[j]))
             {
                 faces[i][4] = 0;
