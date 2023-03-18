@@ -364,7 +364,6 @@ class Voxel
 
         for(const voxel of delete_voxels)
         {
-            if(this.voxels.length <= 1) break
             for(var i = 0; i < this.voxels.length; i++)
             {
                 if(this.voxels[i][0] == voxel[0] && this.voxels[i][1] == voxel[1] && this.voxels[i][2] == voxel[2])
@@ -374,8 +373,6 @@ class Voxel
                     break
                 }
             }
-
-
         }
         this.build_boundary()
         this.build_center()
@@ -861,36 +858,31 @@ class Voxel
         for(var i = 0; i < voxels.length; i++)
         for(var j = 0; j < this.voxels.length; j++)
         {
+            
             if(isTop(voxels[i],this.voxels[j]))
             {
-                this.faces[i][4] = 1;
                 this.faces[j][5] = 1;
             }
             if(isBottom(voxels[i],this.voxels[j]))
             {
-                this.faces[i][5] = 1;
                 this.faces[j][4] = 1;
             }
             
             if(isRight(voxels[i],this.voxels[j]))
             {
-                this.faces[i][2] = 1;
                 this.faces[j][3] = 1;
             }
             if(isLeft(voxels[i],this.voxels[j]))
             {
-                this.faces[i][3] = 1;
                 this.faces[j][2] = 1;
             }
 
             if(isFront(voxels[i],this.voxels[j]))
             {
-                this.faces[i][0] = 1;
                 this.faces[j][1] = 1;
             }
             if(isBack(voxels[i],this.voxels[j]))
             {
-                this.faces[i][1] = 1;
                 this.faces[j][0] = 1;
             }
         }
