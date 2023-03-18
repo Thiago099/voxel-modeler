@@ -1,6 +1,7 @@
 import './color-selection.css'
 import AlphaTrackBar from '../alpha-trackbar/alpha-trackbar'
 import RGBTrackBar from '../rgb-trackbar/rgb-trackbar'
+import { Save, Load } from '../../bin/persistence'
 function ColorPicker({set,get})
 {
     var r = 0
@@ -13,6 +14,80 @@ function ColorPicker({set,get})
     var bg = 255
     var bb = 255
     var ba = 255
+
+    const colors = ref()
+
+    var color_list = []
+
+    function load_colors()
+    {
+        colors.$html("")
+        Load("col",new_color=>{
+            for(var i = 0; i < new_color.length; i++)
+            {
+                add_color(new_color[i][0],new_color[i][1],new_color[i][2],new_color[i][3])
+            }
+        })   
+    }
+    function save_colors()
+    {
+        Save("color_list.col",color_list)
+    }
+
+    function add_color(cr,cg,cb,ca)
+    {
+        color_list.push([cr,cg,cb,ca])
+        var element = 
+        <div class="color-history-item" style={`background-color:rgba(${cr},${cg},${cb},${ca/255})`}>
+        </div>
+
+        var click = false
+
+        element.$on("mousedown",e=>{
+            click = true
+            if(e.button == 1)
+            {
+                e.preventDefault()
+            }
+            return false
+        })
+        element.$on("contextmenu",e=>{
+            e.preventDefault()
+            return false
+        })
+        document.addEventListener("mouseup", (e) => {
+            setTimeout(() => {
+                click = false
+            }, 100);
+        })
+        element.$on("mouseup", (e) => {
+            if(!click) return
+            if(e.button == 0)
+            {
+                r = cr
+                g = cg
+                b = cb
+                a = ca
+                send()
+                if(result) result.$update()
+            }
+            else if(e.button == 2)
+            {
+                br = cr
+                bg = cg
+                bb = cb
+                ba = ca
+                send("background")
+                if(result) result.$update()
+            }
+            else{
+                element.$remove()
+            }
+        })
+                
+
+        element.$parent(colors)
+    }
 
 
 
@@ -28,8 +103,14 @@ function ColorPicker({set,get})
         <div class="row">
         <div class="color-area">
             <div class="color-container">
-                <div class="background color-item" style={`background-color:rgb(${br},${bg},${bb})`}></div>
-                <div class="foreground color-item" style={`background-color:rgb(${r},${g},${b})`}></div>
+                <div class="background color-item">
+                    <div class="backdrop"></div>
+                    <div class="color" style={`background-color:rgb(${br},${bg},${bb},${ba/255})`}></div>
+                </div>
+                <div class="foreground color-item">
+                    <div class="backdrop"></div>
+                    <div class="color" style={`background-color:rgb(${r},${g},${b},${a/255})`}></div>
+                </div>
                 {/* <input type="color" value="#ff0000" on:change={x=>foreground=color2array(x.target.value)} />
                 <input type="color" value="#ffffff" on:change={x=>background=color2array(x.target.value)} /> */}
             </div>
@@ -44,8 +125,18 @@ function ColorPicker({set,get})
         </div>
         </div>
         <div class="color-history-container" >
-            <div class="color-history-item"></div>
+            <div style="display:inline-block"ref={colors}>
+            </div>
+            <div class="color-history-item" style={`background-color:rgba(${r},${g},${b},${a/255})`} on:click={()=>add_color(r,g,b,a)}>
+                <i class="fa fa-plus"></i>
+            </div>
+            <div class="color-history-item" style={`background-color:rgb(${br},${bg},${bb},${ba/255})`} on:click={()=>add_color(br,bg,bb,ba)}>
+            <i class="fa fa-plus"></i>
+            </div>
         </div>
+        <button class="button" on:click={()=>save_colors()}>Save colors</button>
+        <button class="button" on:click={()=>load_colors()}>Load colors</button>
+
     </div>
     function send(changed="foreground") {
         get(changed,{r,g,b,a},{r:br,g:bg,b:bb,a:ba})

@@ -12,7 +12,7 @@ import { ToolSelector } from './components/tool-selection/tool-selection'
 import { ToggleButton } from './components/toggle-button/toggle-button'
 import { ActionButton } from './components/action-button/action-button'
 import ColorPicker from './components/color-selection/color-selection'
-
+import { Save, Load } from './bin/persistence'
 
 
 
@@ -186,8 +186,8 @@ const main =
             <h3>
                 Persistence
             </h3>
-            {ActionButton("Save",()=>save())}
-            {ActionButton("Load",()=>load())}
+            {ActionButton("Save project",()=>save())}
+            {ActionButton("Load project",()=>load())}
         </p>
     </div>
 </div>
@@ -218,52 +218,35 @@ async function process(){
 
 
     save = () => {
-        var data = JSON.stringify({
+        Save("voxel_model.vox",{
             voxels:voxel.voxels,
             color:voxel.color
         })
-        var blob = new Blob([data], {type: "application/json"});
-        var url  = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.download    = "voxel.json";
-        a.href        = url;
-        a.textContent = "Download";
-        a.click();
-        a.remove()
     }
     load = async () => {
-        var input = document.createElement('input');
-        input.type = 'file';
-        input.onchange = e => {
-            var file = e.target.files[0];
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                var contents = e.target.result;
-                const {voxels, color} = JSON.parse(contents)
+        Load("vox",({voxels, color})=>{
 
+            voxel.voxels = voxels
+            voxel.color = color
 
-                voxel.voxels = voxels
-                voxel.color = color
+            voxel.init()
 
-                voxel.init()
+            var [min, max] = voxel.boundary
 
-                var [min, max] = voxel.boundary
+            var x = min[0] - max[0]
+            var y = min[1] - max[1]
+            var z = min[2] - max[2]
 
-                var x = min[0] - max[0]
-                var y = min[1] - max[1]
-                var z = min[2] - max[2]
+            var max = Math.abs(Math.max(x,y,z))
 
-                var max = Math.abs(Math.max(x,y,z))
+            resetZoom()
+            resetPan()
+            resetRotation()
+            zoom(Math.max(max,1))
 
-                zoom(Math.max(max,1))
-
-                builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
-                builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
-            }
-            reader.readAsText(file);
-        }
-        input.click();
-        input.remove()
+            builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+            builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+        })
     }
 
 
@@ -339,7 +322,7 @@ async function process(){
 
 
 
-    const {update, mouse,zoom,resetPan,resetRotation} = useCamera(canvas, builder, gl,()=>selection)
+    const {update, mouse,zoom,resetPan,resetRotation, resetZoom} = useCamera(canvas, builder, gl,()=>selection)
 
     reset_pan = resetPan
     reset_rotation = resetRotation

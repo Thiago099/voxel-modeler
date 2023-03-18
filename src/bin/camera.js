@@ -190,7 +190,11 @@ function useCamera(canvas,builder,gl,getSelection)
         THETA = .8,
         PHI = .8;
     }
-    return {update,mouse,zoom,resetPan,resetRotation}
+    function resetZoom()
+    {
+        view_matrix[14] = -6;
+    }
+    return {update,mouse,zoom,resetPan,resetRotation,resetZoom}
 }
 
 

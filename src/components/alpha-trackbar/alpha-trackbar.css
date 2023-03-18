@@ -2,7 +2,7 @@
 
 .trackbar-background{
   background: 
-  repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 
+  repeating-conic-gradient(#ddd 0% 25%, transparent 0% 50%) 
     50% / 10px 10px;
     position: absolute;
     top: 0;
