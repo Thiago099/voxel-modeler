@@ -427,7 +427,7 @@ class Voxel
                 }
                 if(ids.includes(index))
                 {
-                    var rest_color = this.color[index][i].map(x => Math.abs(1-x* 0.2) )
+                    var rest_color = this.color[index][i].map(x => Math.abs(1-x* 0.3) )
 
                     if(direction_id == selected_direction)
                     {
@@ -781,7 +781,7 @@ class Voxel
                         continue
                     }
 
-                    var rest_color = this.color[index][i].map(x => Math.abs(1-x* 0.2) )
+                    var rest_color = this.color[index][i].map(x => Math.abs(1-x* 0.3) )
                     if(faceIndex == id)
                     {
                         var face_color = this.color[index][i].map(x => Math.abs(1-x* 0.5) )
