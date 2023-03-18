@@ -46,7 +46,7 @@ const main =
                 ● Left click and drag to rotate
             </p>
             <p>
-                ● Right click and drag to pan
+                ● middle click and drag to pan
             </p>
             <p>
                 ● Scroll to zoom

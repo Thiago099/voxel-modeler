@@ -141,10 +141,7 @@ const directions = [
 ]
 
 const baseColor = [
-    1,1,1,1,
-    1,1,1,1,
-    1,1,1,1,
-    1,1,1,1,
+    1,1,1,
 ]
 
 
@@ -247,6 +244,22 @@ class Voxel
         this.voxels = [
             [0,0,0],
         ]
+        this.color = []
+        this.init_colors(this.voxels)
+    }
+    init_colors(voxels)
+    {
+        var color = []
+        for(var i = 0; i < voxels.length; i++)
+        {
+            var current_color = []
+            color.push(current_color)
+            for(var j = 0; j < 6; j++)
+            {
+                current_color.push(baseColor)
+            }
+        }
+        this.color.push(...color)
     }
     build_geometry()
     {
@@ -255,7 +268,6 @@ class Voxel
         var positions = []
         var index = []
         var normals = []
-        var color = []
         var edge_index = []
         var distance = 0
         var id = 1
@@ -266,6 +278,7 @@ class Voxel
 
             var start = id-1;
             var colors = [];
+
 
             for(var j = 0; j < 6; j++)
             {
@@ -278,7 +291,7 @@ class Voxel
                 normals.push(...vertexNormals[j])
                 edge_index.push(...wireframeIndexes[j].map(x => x + distance - comp))
                 index.push(...vertexIndexes[j].map(x => x + distance - comp))
-                color.push(...baseColor)
+                
                 local_distance += 4
 
                 var current_id = id_2_color(id);
@@ -297,7 +310,6 @@ class Voxel
         this.geometry_vertexes = positions
         this.geometry_indexes = index
         this.geometry_normals = normals
-        this.geometry_color = color
         this.geometry_edge_index = edge_index
         this.pick_map = chroma;
         this.pick_meta = meta;
@@ -312,6 +324,7 @@ class Voxel
     add(...voxel)
     {
         this.voxels.push(...voxel)
+        this.init_colors(voxel)
         this.build_boundary()
         this.build_center()
         this.rebuild_faces(voxel)
@@ -322,11 +335,23 @@ class Voxel
         //replace each voxel with 8 new voxels
         var new_voxels = []
         var new_faces = []
+        var new_color = []
         for(const index in this.voxels)
         {
             const voxel = this.voxels[index]
             const face = this.faces[index]
             const delta_v = [voxel[0]*2,voxel[1]*2,voxel[2]*2]
+
+            for(var j = 0; j < 8; j++)
+            {
+                var current_color = []
+                new_color.push(current_color)
+                for(var i = 0; i < 6; i++)
+                {
+                    current_color.push(this.color[index][i])
+                }
+            }
+            
             new_voxels.push(...[
                 [delta_v[0],delta_v[1],delta_v[2]],
                 [delta_v[0]+1,delta_v[1],delta_v[2]],
@@ -354,6 +379,7 @@ class Voxel
         
         this.voxels = new_voxels
         this.faces = new_faces
+        this.color = new_color
         this.build_boundary()
         this.build_center()
         this.build_geometry()
@@ -375,6 +401,7 @@ class Voxel
                 {
                     this.voxels.splice(i,1)
                     this.faces.splice(i,1)
+                    this.color.splice(i,1)
                     break
                 }
             }
@@ -384,8 +411,6 @@ class Voxel
         this.rebuild_remove_faces(delete_voxels)
         this.build_geometry()
     }
-  
-
     get_plane_color(ids,selected_direction)
     {
         var result = []
@@ -402,18 +427,21 @@ class Voxel
                 }
                 if(ids.includes(index))
                 {
+                    var rest_color = this.color[index].map(x => Math.abs(1-x* 0.2) )
+
                     if(direction_id == selected_direction)
                     {
+                        var face_color = this.color[index].map(x => Math.abs(1-x* 0.5) )
                         for(var j = 0; j < 4; j++)
                         {
-                            result.push(1,0.6,0.6,1)
+                            result.push(...face_color,1)
                         }
                     }
                     else
                     {
                         for(var j = 0; j < 4; j++)
                         {
-                            result.push(1,0.9,0.9,1)
+                            result.push(...rest_color,1)
                         }
                     }
                 }
@@ -421,7 +449,7 @@ class Voxel
                 {
                     for(var j = 0; j < 4; j++)
                     {
-                        result.push(1,1,1,1)
+                        result.push(...this.color[index],1)
                     }
                 }
                 direction_id += 1
@@ -700,17 +728,28 @@ class Voxel
                     {
                         continue
                     }
-
-                    for(var j = 0; j < 4; j++)
-                    {
-                        result.push(1,1,1,1)
-                    }
                     id += 1
                 }
             }
 
         }
-        return result;
+        var result = []
+        for(const index in this.pick_meta)
+        {
+            const face = this.faces[index]
+            for(var i = 0; i < face.length; i++)
+            {
+                if(face[i] == 0)
+                {
+                    continue
+                }
+                for(var j = 0; j < 4; j++)
+                {
+                    result.push(...this.color[index],1)
+                }
+            }
+        }
+        return result
     }
 
     get_highlight(data,setSelection)
@@ -733,8 +772,10 @@ class Voxel
                         continue
                     }
 
+                    var rest_color = this.color[index][i].map(x => Math.abs(1-x* 0.2) )
                     if(faceIndex == id)
                     {
+                        var face_color = this.color[index][i].map(x => Math.abs(1-x* 0.5) )
 
                         setSelection({
                             voxel:[this.voxels[index]],
@@ -744,14 +785,14 @@ class Voxel
 
                         for(var j = 0; j < 4; j++)
                         {
-                            result.push(1,0.6,0.6,1)
+                            result.push(...face_color,1)
                         }
                     }
                     else
                     {
                         for(var j = 0; j < 4; j++)
                         {
-                            result.push(1,0.9,0.9,1)
+                            result.push(...rest_color,1)
                         }
                     }
 
@@ -770,7 +811,8 @@ class Voxel
 
                     for(var j = 0; j < 4; j++)
                     {
-                        result.push(1,1,1,1)
+                        
+                        result.push(...this.color[index][i],1)
                     }
                     id += 1
                 }

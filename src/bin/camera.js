@@ -39,7 +39,7 @@ function useCamera(canvas,builder,gl,getSelection)
 
     var mouseDown = function(e) {
         //selection or middle button
-        if(e.button == 2)
+        if(e.button == 1)
         {
             action = "pan"
         }
