@@ -315,6 +315,7 @@ async function process(){
             if(e.button == 1)
             {
                 foreground = [...selection.mouse_color,1]
+                last = foreground
                 SetColor(foreground)
             }
         }
