@@ -42,14 +42,25 @@ const main =
         </h2>
         <p>
             <h3> Camera: </h3>
-            ● Left click and drag to rotate
-            ● Right click and drag to pan
-            ● Scroll to zoom
+            <p>
+                ● Left click and drag to rotate
+            </p>
+            <p>
+                ● Right click and drag to pan
+            </p>
+            <p>
+                ● Scroll to zoom
+            </p>
         </p>
         <p>
             <h3> Object:</h3>
-            ● Left click to add a voxels from the highlighted faces
-            ● Right click to remove a voxel from the highlighted faces
+            <p>
+                ● Left click to add a voxels from the highlighted faces
+            </p>
+            <p>
+                ● Right click to remove a voxel from the highlighted faces
+            </p>
+                
         </p>
     </div>
     <canvas ref={canvas}></canvas>
