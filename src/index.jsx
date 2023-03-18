@@ -162,7 +162,7 @@ async function process(){
     })
     canvas.$on("mouseup",e=>{
         // if radius is less than 5 pixels
-        if(Math.abs(e.offsetX - click_position[0]) > 5 && Math.abs(e.offsetY - click_position[1]) > 5) return
+        if(Math.abs(e.offsetX - click_position[0]) > 3 || Math.abs(e.offsetY - click_position[1]) > 3) return
         // left button
         if(e.button == 0)
         {
