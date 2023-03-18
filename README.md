@@ -1,7 +1,7 @@
 You can click to add and remove voxels, with a variety of tools, that you can also use to color their faces.
 
 ![image](https://user-images.githubusercontent.com/66787043/226139708-499bd261-7b12-476b-96f2-455f04f4e59f.png)
-[link](https://thiago099.github.io/voxel-modeler/)
+[gh pages preview](https://thiago099.github.io/voxel-modeler/)
 
 I plan to add in the future:
 Export as object and texture
