@@ -35,10 +35,18 @@ function useCamera(canvas,builder,gl,getSelection)
     var old_x, old_y;
     var dX = 0, dY = 0;
 
+    var action = null
+
     var mouseDown = function(e) {
         //selection or middle button
-        if(getSelection() && e.button != 1) return
-
+        if(e.button == 1)
+        {
+            action = "pan"
+        }
+        else
+        {
+            action = "rotate"
+        }
 
 
     drag = true;
@@ -56,15 +64,31 @@ function useCamera(canvas,builder,gl,getSelection)
         mouse.x = (e.clientX - rect.left) * gl.canvas.width / gl.canvas.clientWidth;
         mouse.y = gl.canvas.height - (e.clientY - rect.top) * gl.canvas.height / gl.canvas.clientHeight - 1;
 
-
         if (!drag) return false;
-        dX = (e.pageX-old_x)*2*Math.PI/canvas.width,
-        dY = (e.pageY-old_y)*2*Math.PI/canvas.height;
-        THETA+= dX;
-        PHI+=dY;
-        old_x = e.pageX, old_y = e.pageY;
+            dX = (e.pageX-old_x)*2*Math.PI/canvas.width,
+            dY = (e.pageY-old_y)*2*Math.PI/canvas.height;
+
+            if(action == "rotate")
+            {
+                THETA+= dX;
+                PHI+=dY;
+            }
+            else if(action == "pan")
+            {
+            pan(dX,dY);
+            }
+            old_x = e.pageX, old_y = e.pageY;
+
+
+
         e.preventDefault();
     };
+
+    function pan(dx,dy)
+    {
+        view_matrix[12] -= dx * view_matrix[14]/2;
+        view_matrix[13] += dy * view_matrix[14]/2;
+    }
 
     canvas.$on("mousedown", mouseDown);
     canvas.$on("mouseup", mouseUp);

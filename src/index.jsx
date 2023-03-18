@@ -147,13 +147,13 @@ async function process(){
     
     var selection = null
 
-    var old = null
+    var click_position = null
     canvas.$on("mousedown",e=>{
+        click_position = [e.offsetX,e.offsetY]
         if(e.button == 1)
         {
             e.preventDefault()
         }
-        old = selection
     })
 
     canvas.$on("contextmenu",e=>{
@@ -161,21 +161,20 @@ async function process(){
         return false
     })
     canvas.$on("mouseup",e=>{
-        if(selection != null && old != null && selection.index == old.index)
+        // if radius is less than 5 pixels
+        if(Math.abs(e.offsetX - click_position[0]) > 5 && Math.abs(e.offsetY - click_position[1]) > 5) return
+        // left button
+        if(e.button == 0)
         {
-            // left button
-            if(e.button == 0)
-            {
-                voxel.add(...selection.voxel.map(u=>u.map((x,i)=>x+selection.direction[i])))
-                builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
-                builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
-            }
-            else if(e.button == 2)
-            {
-                voxel.remove(...selection.voxel)
-                builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
-                builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
-            }
+            voxel.add(...selection.voxel.map(u=>u.map((x,i)=>x+selection.direction[i])))
+            builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+            builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+        }
+        else if(e.button == 2)
+        {
+            voxel.remove(...selection.voxel)
+            builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+            builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
         }
     })
 
