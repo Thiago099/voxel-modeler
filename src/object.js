@@ -411,7 +411,7 @@ class Voxel
         this.rebuild_remove_faces(delete_voxels)
         this.build_geometry()
     }
-    get_plane_color(ids,selected_direction)
+    get_plane_color(ids,selected_direction, color=null)
     {
         var result = []
         for(const index in this.pick_meta)
@@ -427,11 +427,25 @@ class Voxel
                 }
                 if(ids.includes(index))
                 {
-                    var rest_color = this.color[index][i].map(x => Math.abs(1-x* 0.3) )
+                    if(color != null)
+                    {
+                        var rest_color = this.color[index][i]
+                    }
+                    else
+                    {
+                        var rest_color = this.color[index][i].map(x => Math.abs(1-x* 0.3) )
+                    }
 
                     if(direction_id == selected_direction)
                     {
-                        var face_color = this.color[index][i].map(x => Math.abs(1-x* 0.5) )
+                        if(color != null)
+                        {
+                            var face_color = this.color[index][i].map((x,i) => (x * (1 - color[3]))+(color[i]*color[3] ))
+                        }
+                        else
+                        {
+                            var face_color = this.color[index][i].map(x => Math.abs(1-x* 0.5) )
+                        }
                         for(var j = 0; j < 4; j++)
                         {
                             result.push(...face_color,1)
@@ -666,7 +680,7 @@ class Voxel
         }
         return result
     }
-    highlight_plane(data,setSelection,type,contiguous)
+    highlight_plane(data,setSelection,type,contiguous, color=null)
     {
         var faceIndex = color_2_id(data)
         var result = []
@@ -723,7 +737,7 @@ class Voxel
                             index:index,
                         })
 
-                        return this.get_plane_color(ids,direction_id)
+                        return this.get_plane_color(ids,direction_id, color)
                     }
                     direction_id += 1
                     id += 1
@@ -761,7 +775,7 @@ class Voxel
         return result
     }
 
-    get_highlight(data,setSelection)
+    get_highlight(data,setSelection, color=null)
     {
         var faceIndex = color_2_id(data)
         var result = []
@@ -781,10 +795,24 @@ class Voxel
                         continue
                     }
 
-                    var rest_color = this.color[index][i].map(x => Math.abs(1-x* 0.3) )
+                    if(color != null)
+                    {
+                        var rest_color = this.color[index][i]
+                    }
+                    else
+                    {
+                        var rest_color = this.color[index][i].map(x => Math.abs(1-x* 0.3) )
+                    }
                     if(faceIndex == id)
                     {
-                        var face_color = this.color[index][i].map(x => Math.abs(1-x* 0.5) )
+                        if(color != null)
+                        {
+                            var face_color = this.color[index][i].map((x,i) => (x * (1 - color[3]))+(color[i]*color[3] ))
+                        }
+                        else
+                        {
+                            var face_color = this.color[index][i].map(x => Math.abs(1-x* 0.5) )
+                        }
 
                         setSelection({
                             voxel:[this.voxels[index]],

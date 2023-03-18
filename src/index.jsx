@@ -21,6 +21,7 @@ var save = null
 var load = null
 var reset_pan = null
 var reset_rotation = null
+var last = foreground
 const tools = [
     {
         name: "Point"
@@ -65,10 +66,19 @@ function color2array(color)
 var foreground = [1,0,0]
 var background = [1,1,1]
 
-function updateColor(fg,bg)
+function updateColor(changed,fg,bg)
 {
     foreground = [fg.r / 255,fg.g / 255,fg.b / 255,fg.a / 255]
     background = [bg.r / 255,bg.g / 255,bg.b / 255,bg.a / 255]
+
+    if(changed == "foreground")
+    {
+        last = foreground
+    }
+    else
+    {
+        last = background
+    }
 }
 var set = null
 
@@ -105,13 +115,13 @@ const main =
             <h3>
                 Mode
             </h3>
-            {ToolSelector(modes, x => selected_mode = x,"Sculpt")}
+            {ToolSelector(modes, x => {selected_mode = x,last=foreground},"Sculpt")}
         </p>
         <p>
             <h3>
                 Color
             </h3>
-            <ColorPicker get={(fg,bg)=>updateColor(fg,bg)} set={fn=>set=fn}></ColorPicker>
+            <ColorPicker get={(changed,fg,bg)=>updateColor(changed, fg,bg)} set={fn=>set=fn}></ColorPicker>
         </p>
     </div>
     {/* <div class="tip-box">
@@ -245,7 +255,7 @@ async function process(){
 
                 var max = Math.abs(Math.max(x,y,z))
 
-                zoom(max)
+                zoom(Math.max(max,1))
 
                 builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
                 builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
@@ -261,6 +271,7 @@ async function process(){
 
     
     var selection = null
+
 
     var click_position = null
     canvas.$on("mousedown",e=>{
@@ -302,6 +313,7 @@ async function process(){
         {
             if(e.button == 0)
             {
+                last = foreground
                 for(var j = 0; j < selection.color.length; j++)
                 for(var i = 0; i < 3; i++)
                 {
@@ -310,6 +322,7 @@ async function process(){
             }
             else if(e.button == 2)
             {
+                last = background
                 for(var j = 0; j < selection.color.length; j++)
                 for(var i = 0; i < 3; i++)
                 {
@@ -318,7 +331,7 @@ async function process(){
             }
             if(e.button == 1)
             {
-                foreground = [...selection.mouse_color]
+                foreground = [...selection.mouse_color,1]
                 SetColor(foreground)
             }
         }
@@ -381,11 +394,26 @@ async function process(){
 
         if(selected_tool == "Point")
         {
-            builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel,data=>selection = data)
+            if(selected_mode == "Sculpt")
+            {
+                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel,data=>selection = data)
+            }
+            else
+            {
+                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel,data=>selection = data,last)
+
+            }
         }
         else
         {
-            builder.attribute_matrix_4_float.color = voxel.highlight_plane(pixel,data=>selection = data,selected_tool,contiguous)
+            if(selected_mode == "Sculpt")
+            {
+                builder.attribute_matrix_4_float.color = voxel.highlight_plane(pixel,data=>selection = data,selected_tool,contiguous)
+            }
+            else
+            {
+                builder.attribute_matrix_4_float.color = voxel.highlight_plane(pixel,data=>selection = data,selected_tool,contiguous,last)
+            }
         }
         builder.drawSolid(voxel.geometry_indexes)
         gl.disable(gl.POLYGON_OFFSET_FILL);

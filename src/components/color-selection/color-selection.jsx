@@ -3,14 +3,14 @@ import AlphaTrackBar from '../alpha-trackbar/alpha-trackbar'
 import RGBTrackBar from '../rgb-trackbar/rgb-trackbar'
 function ColorPicker({set,get})
 {
-    var r = 255
+    var r = 0
     var g = 0
     var b = 0
     var a = 255
 
 
-    var br = 0
-    var bg = 0
+    var br = 255
+    var bg = 255
     var bb = 255
     var ba = 255
 
@@ -47,8 +47,8 @@ function ColorPicker({set,get})
             <div class="color-history-item"></div>
         </div>
     </div>
-    function send() {
-        get({r,g,b,a},{r:br,g:bg,b:bb,a:ba})
+    function send(changed="foreground") {
+        get(changed,{r,g,b,a},{r:br,g:bg,b:bb,a:ba})
     }
     set(receive())
     function receive()
@@ -101,13 +101,12 @@ function ColorPicker({set,get})
     {
         ba = v
         if(result) result.$update()
-        send()
+        send("background")
     }
     
 
     function swap()
     {
-        console.log("swap")
         var temp = br
         br = r
         r = temp
