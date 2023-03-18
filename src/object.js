@@ -782,7 +782,7 @@ class Voxel
     {
         const faces = new Array(voxels.length).fill(0).map(x => [1,1,1,1,1,1]);
         for(var i = 0; i < voxels.length; i++)
-        for(var j = 0; j < this.voxels.length; j++)
+        for(var j = 0; j < this.faces.length; j++)
         {
             if(isTop(voxels[i],this.voxels[j]))
             {
