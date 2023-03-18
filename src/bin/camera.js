@@ -39,7 +39,7 @@ function useCamera(canvas,builder,gl,getSelection)
 
     var mouseDown = function(e) {
         //selection or middle button
-        if(e.button == 1)
+        if(e.button == 2)
         {
             action = "pan"
         }
@@ -179,7 +179,18 @@ function useCamera(canvas,builder,gl,getSelection)
         builder.attribute_matrix_4_mat_float.view_matrix = view_matrix
         builder.attribute_matrix_4_mat_float.model_matrix = mo_matrix
     }
-    return {update,mouse,zoom}
+    function resetPan()
+    {
+        view_matrix[12] = 0;
+        view_matrix[13] = 0;
+    }
+
+    function resetRotation()
+    {
+        THETA = .8,
+        PHI = .8;
+    }
+    return {update,mouse,zoom,resetPan,resetRotation}
 }
 
 

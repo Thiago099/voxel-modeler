@@ -13,6 +13,8 @@ import { ActionButton } from './components/action-button/action-button'
 var subdivide = null
 var save = null
 var load = null
+var reset_pan = null
+var reset_rotation = null
 const tools = [
     {
         name: "Point"
@@ -34,6 +36,22 @@ const canvas = ref()
 const fps = ref()
 const main = 
 <div class="main">
+    <div class="tip-box">
+        <h2>
+            Tips:
+        </h2>
+        <p>
+            <h3> Camera: </h3>
+            ● Left click and drag to rotate
+            ● Right click and drag to pan
+            ● Scroll to zoom
+        </p>
+        <p>
+            <h3> Object:</h3>
+            ● Left click to add a voxels from the highlighted faces
+            ● Right click to remove a voxel from the highlighted faces
+        </p>
+    </div>
     <canvas ref={canvas}></canvas>
     <div class="info">
         <p>
@@ -56,6 +74,8 @@ const main =
                 View
             </h3>
             {ToggleButton("Wireframe",x=>wireframe = x)}
+            {ActionButton("Reset pan",()=>reset_pan())}
+            {ActionButton("Reset rotation",()=>reset_rotation())}
         </p>
         <p>
             <h3>
@@ -69,7 +89,6 @@ const main =
             </h3>
             {ActionButton("Save",()=>save())}
             {ActionButton("Load",()=>load())}
-
         </p>
     </div>
 </div>
@@ -180,7 +199,10 @@ async function process(){
 
 
 
-    const {update, mouse,zoom} = useCamera(canvas, builder, gl,()=>selection)
+    const {update, mouse,zoom,resetPan,resetRotation} = useCamera(canvas, builder, gl,()=>selection)
+
+    reset_pan = resetPan
+    reset_rotation = resetRotation
 
     subdivide = () => {
         voxel.subdivide()
