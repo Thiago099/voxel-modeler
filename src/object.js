@@ -173,6 +173,73 @@ function isBack(va,vb)
     return va[2]-1 == vb[2] && va[0] == vb[0] && va[1] == vb[1]
 }
 
+const subdivideFaceIndex = [
+    [
+      0,
+      1,
+      0,
+      1,
+      0,
+      1
+    ],
+    [
+      0,
+      1,
+      0,
+      1,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      1,
+      1,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      1,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      0,
+      1,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      1,
+      0,
+      1,
+      0
+    ]
+  ]
+
 class Voxel
 {
     constructor()
@@ -254,8 +321,11 @@ class Voxel
     {
         //replace each voxel with 8 new voxels
         var new_voxels = []
-        for(const voxel of this.voxels)
+        var new_faces = []
+        for(const index in this.voxels)
         {
+            const voxel = this.voxels[index]
+            const face = this.faces[index]
             const delta_v = [voxel[0]*2,voxel[1]*2,voxel[2]*2]
             new_voxels.push(...[
                 [delta_v[0],delta_v[1],delta_v[2]],
@@ -267,9 +337,27 @@ class Voxel
                 [delta_v[0],delta_v[1]+1,delta_v[2]+1],
                 [delta_v[0]+1,delta_v[1]+1,delta_v[2]+1],
             ])
+
+            for(var i in subdivideFaceIndex)
+            {
+                var new_face = Array(6).fill(0)
+                for(var j in subdivideFaceIndex[i])
+                {
+                    if(subdivideFaceIndex[i][j] == 1 && face[j] == 1)
+                    {
+                        new_face[j] = 1
+                    }
+                }
+                new_faces.push(new_face)
+            }
         }
+        
         this.voxels = new_voxels
-        this.init()
+        this.faces = new_faces
+        this.build_boundary()
+        this.build_center()
+        this.build_geometry()
+
     }
     remove(...delete_voxels)
     {
