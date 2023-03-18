@@ -9,15 +9,26 @@ npm run dev
 
 ## Usage
 
-Click and drag to rotate
 
-Mouse wheel to zoom
+## Camera:
+- Left click and drag to rotate
+- middle click and drag to pan
+- Scroll to zoom
+## Object:
 
-left click to add voxels
+### Sculpt mode
+- Left click to add a voxels from the highlighted faces
+- Right click to remove a voxel from the highlighted faces
 
-right click to remove voxels
+### Paint mode
+- Left click to color the highligted face the foreground color
+- Right click to color the highligted face the background color
+- Middle click to set the foreground color to the highligted faces color
 ## image
-![image](https://user-images.githubusercontent.com/66787043/225913951-bbc22fce-d0c1-459e-adf8-0600409c4b87.png)
+
+![image](https://user-images.githubusercontent.com/66787043/226139708-499bd261-7b12-476b-96f2-455f04f4e59f.png)
 
 ## See preview
+
+
 [gh pages](https://thiago099.github.io/voxel-modeler/)
