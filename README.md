@@ -20,4 +20,4 @@ right click to remove voxels
 ![image](https://user-images.githubusercontent.com/66787043/225913951-bbc22fce-d0c1-459e-adf8-0600409c4b87.png)
 
 ## See preview
-[gh pages](https://thiago099.github.io/voxel-modeler/)
+![image](https://user-images.githubusercontent.com/66787043/226139708-499bd261-7b12-476b-96f2-455f04f4e59f.png)
