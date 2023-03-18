@@ -1,11 +1,11 @@
 
 import './tool-selection.css'
 
-function ToolSelector(data,callback)
+function ToolSelector(data,callback, initial)
 {
     var result = []
 
-    const selected = state({name: "Point"})
+    const selected = state({name: initial})
 
     for(const item of data)
     {

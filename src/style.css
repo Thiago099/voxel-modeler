@@ -10,10 +10,11 @@ body{
 .main{
     display: flex;
     flex-direction: row;
+    width: 100vw;
 }
 .info{
     padding-left: 30px;
-    width: 500px;
+    min-width: 400px;
 }
 
 .tip-box{

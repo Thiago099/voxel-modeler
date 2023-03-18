@@ -1,5 +1,8 @@
 
 import './style.css'
+
+import "@fortawesome/fontawesome-free/css/all.css"
+
 import { Voxel,vertexPosition, vertexNormals,wireframeIndexes } from './object.js'
 
 import { webgl } from './bin/gl-builder'
@@ -8,6 +11,9 @@ import { step } from './bin/utils'
 import { ToolSelector } from './components/tool-selection/tool-selection'
 import { ToggleButton } from './components/toggle-button/toggle-button'
 import { ActionButton } from './components/action-button/action-button'
+import ColorPicker from './components/color-selection/color-selection'
+
+
 
 
 var subdivide = null
@@ -29,14 +35,86 @@ const tools = [
         name: "Vertical line"
     },
 ]
+
+const modes = [
+    {
+        name: "Sculpt"
+    },
+    {
+        name: "Paint"
+    },
+]
 var selected_tool = "Point"
+var selected_mode = "Sculpt"
 var contiguous = true
 var wireframe = true
+
+function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? [
+      parseInt(result[1], 16),
+      parseInt(result[2], 16),
+      parseInt(result[3], 16)
+    ]: null;
+  }
+function color2array(color)
+{
+    color = hexToRgb(color)
+    return [color[0]/255,color[1]/255,color[2]/255]
+}
+var foreground = [1,0,0]
+var background = [1,1,1]
+
+function updateColor(fg,bg)
+{
+    foreground = [fg.r / 255,fg.g / 255,fg.b / 255,fg.a / 255]
+    background = [bg.r / 255,bg.g / 255,bg.b / 255,bg.a / 255]
+}
+var set = null
+
+function SetColor(fg,bg)
+{
+    var so = null
+    if(fg != null)
+    {
+        so = {
+            r: fg[0]*255,
+            g: fg[1]*255,
+            b: fg[2]*255,
+            a: 255
+        }
+    }
+    var bo = null
+    if(bg != null)
+    {
+        bo = {
+            r: bg[0]*255,
+            g: bg[1]*255,
+            b: bg[2]*255,
+            a: 255
+        }
+    }
+    set(so,bo)
+}
 const canvas = ref()
 const fps = ref()
 const main = 
 <div class="main">
-    <div class="tip-box">
+    <div class="info">
+        <p>
+            <h3>
+                Mode
+            </h3>
+            {ToolSelector(modes, x => selected_mode = x,"Sculpt")}
+        </p>
+        <p>
+            <h3>
+                Color
+            </h3>
+            <ColorPicker get={(fg,bg)=>updateColor(fg,bg)} set={fn=>set=fn}></ColorPicker>
+        </p>
+    </div>
+    {/* <div class="tip-box">
         <h2>
             Tips:
         </h2>
@@ -62,7 +140,7 @@ const main =
             </p>
                 
         </p>
-    </div>
+    </div> */}
     <canvas ref={canvas}></canvas>
     <div class="info">
         <p>
@@ -72,7 +150,7 @@ const main =
             <h3>
                 Tool
             </h3>
-            {ToolSelector(tools, x => selected_tool = x)}
+            {ToolSelector(tools, x => selected_tool = x,"Point")}
         </p>
         <p>
             <h3>
@@ -130,7 +208,10 @@ async function process(){
 
 
     save = () => {
-        var data = JSON.stringify(voxel.voxels)
+        var data = JSON.stringify({
+            voxels:voxel.voxels,
+            color:voxel.color
+        })
         var blob = new Blob([data], {type: "application/json"});
         var url  = URL.createObjectURL(blob);
         var a = document.createElement('a');
@@ -148,7 +229,12 @@ async function process(){
             var reader = new FileReader();
             reader.onload = function(e) {
                 var contents = e.target.result;
-                voxel.voxels = JSON.parse(contents)
+                const {voxels, color} = JSON.parse(contents)
+
+
+                voxel.voxels = voxels
+                voxel.color = color
+
                 voxel.init()
 
                 var [min, max] = voxel.boundary
@@ -159,7 +245,6 @@ async function process(){
 
                 var max = Math.abs(Math.max(x,y,z))
 
-                console.log(max)
                 zoom(max)
 
                 builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
@@ -192,19 +277,50 @@ async function process(){
     })
     canvas.$on("mouseup",e=>{
         // if radius is less than 5 pixels
-        if(Math.abs(e.offsetX - click_position[0]) > 3 || Math.abs(e.offsetY - click_position[1]) > 3) return
+        if(!click_position || Math.abs(e.offsetX - click_position[0]) > 3 || Math.abs(e.offsetY - click_position[1]) > 3) return
         // left button
-        if(e.button == 0)
+
+        if(!selection) return
+
+        if(selected_mode == "Sculpt")
         {
-            voxel.add(...selection.voxel.map(u=>u.map((x,i)=>x+selection.direction[i])))
-            builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
-            builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+
+            if(e.button == 0)
+            {
+                voxel.add(...selection.voxel.map(u=>u.map((x,i)=>x+selection.direction[i])))
+                builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+                builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+            }
+            else if(e.button == 2)
+            {
+                voxel.remove(...selection.voxel)
+                builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+                builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+            }
         }
-        else if(e.button == 2)
+        else
         {
-            voxel.remove(...selection.voxel)
-            builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
-            builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+            if(e.button == 0)
+            {
+                for(var j = 0; j < selection.color.length; j++)
+                for(var i = 0; i < 3; i++)
+                {
+                    selection.color[j][i] = (selection.color[j][i] * (1 - foreground[3]))+(foreground[i]*foreground[3] )
+                }
+            }
+            else if(e.button == 2)
+            {
+                for(var j = 0; j < selection.color.length; j++)
+                for(var i = 0; i < 3; i++)
+                {
+                    selection.color[j][i] = (selection.color[j][i] * (1 - background[3]))+(background[i]*background[3] )
+                }
+            }
+            if(e.button == 1)
+            {
+                foreground = [...selection.mouse_color]
+                SetColor(foreground)
+            }
         }
     })
 

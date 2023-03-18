@@ -256,7 +256,7 @@ class Voxel
             color.push(current_color)
             for(var j = 0; j < 6; j++)
             {
-                current_color.push(baseColor)
+                current_color.push([...baseColor])
             }
         }
         this.color.push(...color)
@@ -348,7 +348,7 @@ class Voxel
                 new_color.push(current_color)
                 for(var i = 0; i < 6; i++)
                 {
-                    current_color.push(this.color[index][i])
+                    current_color.push([...this.color[index][i]])
                 }
             }
             
@@ -427,11 +427,11 @@ class Voxel
                 }
                 if(ids.includes(index))
                 {
-                    var rest_color = this.color[index].map(x => Math.abs(1-x* 0.2) )
+                    var rest_color = this.color[index][i].map(x => Math.abs(1-x* 0.2) )
 
                     if(direction_id == selected_direction)
                     {
-                        var face_color = this.color[index].map(x => Math.abs(1-x* 0.5) )
+                        var face_color = this.color[index][i].map(x => Math.abs(1-x* 0.5) )
                         for(var j = 0; j < 4; j++)
                         {
                             result.push(...face_color,1)
@@ -449,7 +449,7 @@ class Voxel
                 {
                     for(var j = 0; j < 4; j++)
                     {
-                        result.push(...this.color[index],1)
+                        result.push(...this.color[index][i],1)
                     }
                 }
                 direction_id += 1
@@ -708,9 +708,18 @@ class Voxel
                             ids = this.get_contiguous(ids,this.voxels[index],directions[direction_id])
                         }
 
+                        var selected_face_colors = []
+
+                        for(const id of ids)
+                        {
+                            selected_face_colors.push(this.color[id][direction_id])
+                        }
+
                         setSelection({
                             voxel:ids.map(x=>this.voxels[x]),
                             direction:directions[direction_id],
+                            color:selected_face_colors,
+                            mouse_color:this.color[index][i],
                             index:index,
                         })
 
@@ -745,7 +754,7 @@ class Voxel
                 }
                 for(var j = 0; j < 4; j++)
                 {
-                    result.push(...this.color[index],1)
+                    result.push(...this.color[index][i],1)
                 }
             }
         }
@@ -780,6 +789,8 @@ class Voxel
                         setSelection({
                             voxel:[this.voxels[index]],
                             direction:directions[direction_id],
+                            color:[this.color[index][i]],
+                            mouse_color:this.color[index][i],
                             index:index,
                         })
 
