@@ -452,6 +452,7 @@ async function process(){
                     {
                         new_voxels.push(...item.voxel.map(u=>u.map((x,i)=>x+item.direction[i])))
                     }
+                    new_voxels = [...new Set(new_voxels.map(JSON.stringify))].map(JSON.parse)
                     voxel.add(...new_voxels)
                     builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
                     builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
