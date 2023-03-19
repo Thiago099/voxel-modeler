@@ -21,6 +21,8 @@ var save = null
 var load = null
 var reset_pan = null
 var reset_rotation = null
+var undo_fn = null
+var redo_fn = null
 var last = foreground
 const tools = [
     {
@@ -181,6 +183,8 @@ const main =
                 Actions
             </h3>
             {ActionButton("Subdivide",()=>subdivide())}
+            {ActionButton("Undo",()=>undo_fn())}
+            {ActionButton("Redo",()=>redo_fn())}
         </p>
         <p>
             <h3>
@@ -275,7 +279,7 @@ async function process(){
 
             var max = Math.abs(Math.max(x,y,z))
 
-            resetZoom()
+            setZoom(-6)
             resetPan()
             resetRotation()
             zoom(Math.max(max,1))
@@ -301,10 +305,76 @@ async function process(){
 
 
     var ctrlDown = false;
+    var pointer = -1
+    var history = []
+    push_history()
+
+    function push_history(division = false)
+    {
+        history = history.slice(0,pointer+1)
+        history.push(JSON.parse(JSON.stringify([voxel.voxels,voxel.color,voxel.faces,division])))
+        pointer = history.length-1
+    }
+    undo_fn = undo
+    redo_fn = redo
+    function undo()
+    {
+        if(pointer > 0)
+        {
+            const division = history[pointer][3]
+            pointer--
+            const [voxels,color,faces] = JSON.parse(JSON.stringify(history[pointer]))
+            if(division)
+            {
+                zoom(0.5)
+            }
+            voxel.voxels = voxels
+            voxel.color = color
+            voxel.faces = faces
+            voxel.init()
+            voxel.build()
+            builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+            builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+        }
+    }
+    function redo()
+    {
+        if(pointer+1 < history.length)
+        {
+            pointer++
+            const [voxels,color,faces,division] = history[pointer]
+            if(division)
+            {
+                zoom(2)
+            }
+            voxel.voxels = voxels
+            voxel.color = color
+            voxel.faces = faces
+            voxel.build()
+            builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+            builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+        }
+    }
     document.addEventListener('keydown', function(event) {
         if (event.key == "Control") {
             ctrlDown = true;
         }
+        // ctrl + z
+        if (event.key == "z" && event.ctrlKey) {
+            
+            undo()
+        }
+            
+        if(event.key == "y" && event.ctrlKey)
+        {
+            redo()
+        }
+
+        if(event.key == "x" && event.ctrlKey)
+        {
+            subdivide()
+        }
+            
     });
     document.addEventListener('keyup', function(event) {
         if (event.key == "Control") {
@@ -352,8 +422,11 @@ async function process(){
         e.preventDefault()
         return false
     })
+
     canvas.$on("mouseup",e=>{
         if(ctrlDown || has_ctrl) return
+
+        
         // if radius is less than 5 pixels
         // if(!click_position || Math.abs(e.offsetX - click_position[0]) > 3 || Math.abs(e.offsetY - click_position[1]) > 3) return
         // left button
@@ -471,11 +544,12 @@ async function process(){
                 }
             }
         }
+        push_history()
     })
 
 
 
-    const {update, mouse,zoom,resetPan,resetRotation, resetZoom} = useCamera(canvas, builder, gl,()=>selection)
+    const {update, mouse,zoom,resetPan,resetRotation, setZoom} = useCamera(canvas, builder, gl,()=>selection)
 
     reset_pan = resetPan
     reset_rotation = resetRotation
@@ -485,6 +559,7 @@ async function process(){
         builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
         builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
         zoom(2)
+        push_history(true)
     }
 
     function clear()

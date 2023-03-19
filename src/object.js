@@ -321,6 +321,12 @@ class Voxel
         this.build_faces()
         this.build_geometry()
     }
+    build()
+    {
+        this.build_boundary()
+        this.build_center()
+        this.build_geometry()
+    }
     add(...voxel)
     {
         this.voxels.push(...voxel)
