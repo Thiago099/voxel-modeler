@@ -311,6 +311,11 @@ async function process(){
 
     function push_history(division = false)
     {
+        if(history.length > 30)
+        {
+            history = history.slice(1)
+            pointer--
+        }
         history = history.slice(0,pointer+1)
         history.push(JSON.parse(JSON.stringify([voxel.voxels,voxel.color,voxel.faces,division])))
         pointer = history.length-1
