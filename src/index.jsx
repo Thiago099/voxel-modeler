@@ -325,7 +325,7 @@ async function process(){
             px = x
             py = y
             drag = true
-            positions = []
+            positions = [[x,y]]
         }
     })
     canvas.$on("mousemove",e=>{
@@ -501,7 +501,14 @@ async function process(){
             builder.drawSolid(voxel.geometry_indexes)
             if(selected_tool == "Point")
             {
-                pixel = positions.map(u=>builder.getPixel(u[0], u[1]))
+                if(drag)
+                {
+                    pixel = positions.map(u=>builder.getPixel(u[0], u[1]))
+                }
+                else
+                {
+                    pixel = [builder.getPixel(mouse.x, mouse.y)]
+                }
             }
             else
             {
