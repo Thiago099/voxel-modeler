@@ -603,7 +603,7 @@ async function process(){
                 }
                 else
                 {
-                    pixel = [builder.getPixel(mouse.x, mouse.y)]
+                    pixel_group = [builder.getPixel(mouse.x, mouse.y)]
                 }
             }
             else
