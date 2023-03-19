@@ -418,7 +418,7 @@ async function process(){
     canvas.$on("mousemove",e=>{
         if(!drag) return
         const [x,y] = get_mouse(e)
-        positions.push(...flood(x,y,px,py,10))
+        positions.push(...flood(x,y,px,py,5))
         px = x
         py = y
     })
@@ -427,11 +427,11 @@ async function process(){
         e.preventDefault()
         return false
     })
-
+    var pixel_group = []
     canvas.$on("mouseup",e=>{
         if(ctrlDown || has_ctrl) return
 
-        
+        pixel_group = []
         // if radius is less than 5 pixels
         // if(!click_position || Math.abs(e.offsetX - click_position[0]) > 3 || Math.abs(e.offsetY - click_position[1]) > 3) return
         // left button
@@ -578,6 +578,7 @@ async function process(){
         
     }
 
+ 
     step((a) => {
         fps.$html(a)
         update()
@@ -597,7 +598,8 @@ async function process(){
             {
                 if(drag)
                 {
-                    pixel = positions.map(u=>builder.getPixel(u[0], u[1]))
+                    pixel_group.push(...positions.map(u=>builder.getPixel(u[0], u[1])))
+                    positions = []
                 }
                 else
                 {
@@ -628,11 +630,11 @@ async function process(){
         {
             if(selected_mode == "Sculpt")
             {
-                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel,data=>selection = data)
+                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel_group,data=>selection = data)
             }
             else
             {
-                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel,data=>selection = data,last)
+                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel_group,data=>selection = data,last)
 
             }
         }

@@ -989,6 +989,7 @@ class Voxel
         const voxels = this.voxels
         const faces = new Array(voxels.length).fill(0).map(x => [1,1,1,1,1,1]);
 
+
         for(var i = 0; i < voxels.length; i++)
         for(var j = i+1; j < voxels.length; j++)
         {
