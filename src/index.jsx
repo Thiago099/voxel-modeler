@@ -24,7 +24,7 @@ var reset_rotation = null
 var last = foreground
 const tools = [
     {
-        name: "Point"
+        name: "Pen"
     },
     {
         name: "Plane"
@@ -45,7 +45,7 @@ const modes = [
         name: "Paint"
     },
 ]
-var selected_tool = "Point"
+var selected_tool = "Pen"
 var selected_mode = "Sculpt"
 var contiguous = true
 var wireframe = true
@@ -160,7 +160,7 @@ const main =
             <h3>
                 Tool
             </h3>
-            {ToolSelector(tools, x => selected_tool = x,"Point")}
+            {ToolSelector(tools, x => selected_tool = x,"Pen")}
         </p>
         <p>
             <h3>
@@ -312,7 +312,10 @@ async function process(){
         }
     });
     
+    var has_ctrl = false
+    
     canvas.$on("mousedown",e=>{
+        has_ctrl = ctrlDown
         if(ctrlDown) return
         click_position = [e.offsetX,e.offsetY]
         if(e.button == 1)
@@ -326,6 +329,15 @@ async function process(){
             py = y
             drag = true
             positions = [[x,y]]
+        }
+
+        if(e.button == 0)
+        {
+            last = foreground
+        }
+        else if(e.button == 2)
+        {
+            last = background
         }
     })
     canvas.$on("mousemove",e=>{
@@ -341,6 +353,7 @@ async function process(){
         return false
     })
     canvas.$on("mouseup",e=>{
+        if(ctrlDown || has_ctrl) return
         // if radius is less than 5 pixels
         // if(!click_position || Math.abs(e.offsetX - click_position[0]) > 3 || Math.abs(e.offsetY - click_position[1]) > 3) return
         // left button
@@ -349,7 +362,7 @@ async function process(){
         if(!selection) return
 
         
-        if(selected_tool == "Point")
+        if(selected_tool == "Pen")
         {
             if(selected_mode == "Sculpt")
             {
@@ -405,7 +418,7 @@ async function process(){
                 }
                 if(e.button == 1)
                 {
-                    foreground = [...selection.mouse_color,1]
+                    foreground = [...selection[0].mouse_color,1]
                     last = foreground
                     SetColor(foreground)
                 }
@@ -499,7 +512,7 @@ async function process(){
             clear()
             builder.attribute_matrix_4_float.color = voxel.pick_map;
             builder.drawSolid(voxel.geometry_indexes)
-            if(selected_tool == "Point")
+            if(selected_tool == "Pen")
             {
                 if(drag)
                 {
@@ -530,7 +543,7 @@ async function process(){
         selection = null
 
 
-        if(selected_tool == "Point")
+        if(selected_tool == "Pen")
         {
             if(selected_mode == "Sculpt")
             {

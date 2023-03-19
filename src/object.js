@@ -433,7 +433,7 @@ class Voxel
                     }
                     else
                     {
-                        var rest_color = this.color[index][i].map(x => Math.abs(1-x* 0.3) )
+                        var rest_color = this.color[index][i]//.map(x => Math.abs(1-x* 0.3) )
                     }
 
                     if(direction_id == selected_direction)
@@ -803,7 +803,7 @@ class Voxel
                     }
                     else
                     {
-                        var rest_color = this.color[index][i].map(x => Math.abs(1-x* 0.3) )
+                        var rest_color = this.color[index][i]//.map(x => Math.abs(1-x* 0.3) )
                     }
                     if(indexes.has(id))
                     {

@@ -12,10 +12,13 @@ Better rendering shader with shadows.
 # Here are some controls:
 
 ## Camera:
-- Left click and drag to rotate
-- Middle click and drag to pan
+- Ctrl + Left click and drag to rotate
+- Ctrl + Right click and drag to pan
 - Scroll to zoom
 ## Object:
+
+## Pen
+- Click and drag to paint, in either sculpt and paint mode
 
 ### Sculpt mode
 - Left click to add a voxels from the highlighted faces
