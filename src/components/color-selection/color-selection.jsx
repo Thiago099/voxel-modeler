@@ -21,8 +21,8 @@ function ColorPicker({set,get})
 
     function load_colors()
     {
-        colors.$html("")
         Load("col",new_color=>{
+            colors.$html("")
             for(var i = 0; i < new_color.length; i++)
             {
                 add_color(new_color[i][0],new_color[i][1],new_color[i][2],new_color[i][3])
@@ -219,6 +219,9 @@ function ColorPicker({set,get})
         send()
     }
     send()
+    result.$onMounted(()=>{
+        result.$update()
+    })
     return result
 }
 

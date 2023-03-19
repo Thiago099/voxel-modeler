@@ -12,12 +12,7 @@ function RGBTrackBar({callback, start, colorFrom,colorTo})
         </div> */}
     </div>
 
-    result.$onMounted(()=>{
-        var rect = result.__element.getBoundingClientRect()
-        data.relative_value = start()
-        data.absolute_value = rect.width * start() / 255
-        callback(data.relative_value)
-    })
+
     result.$onUpdate(()=>{
         var rect = result.__element.getBoundingClientRect()
         data.relative_value = start()
