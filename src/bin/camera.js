@@ -37,9 +37,27 @@ function useCamera(canvas,builder,gl,getSelection)
 
     var action = null
 
+
+    var ctrlDown = false;
+    document.addEventListener('keydown', function(event) {
+        if (event.key == "Control") {
+            ctrlDown = true;
+        }
+    });
+    document.addEventListener('keyup', function(event) {
+        if (event.key == "Control") {
+            ctrlDown = false;
+        }
+    });
+
+
+
+
     var mouseDown = function(e) {
+
+        if(!ctrlDown) return;
         //selection or middle button
-        if(e.button == 1)
+        if(e.button == 2)
         {
             action = "pan"
         }

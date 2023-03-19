@@ -777,14 +777,16 @@ class Voxel
 
     get_highlight(data,setSelection, color=null)
     {
-        var faceIndex = color_2_id(data)
+        var indexes = new Set(data.map(u=>color_2_id(u)))
+        var aindex = Array.from(indexes)
         var result = []
+        var selection = []
         var id = 0
         for(const index in this.pick_meta)
         {
             const face = this.faces[index]
             const map = this.pick_meta[index]
-            if(faceIndex >= map.start && faceIndex < map.end)
+            if(aindex.some(x => x >= map.start && x < map.end))
             {
                 var direction_id = 0
                 for(var i = 0; i < face.length; i++)
@@ -803,7 +805,7 @@ class Voxel
                     {
                         var rest_color = this.color[index][i].map(x => Math.abs(1-x* 0.3) )
                     }
-                    if(faceIndex == id)
+                    if(indexes.has(id))
                     {
                         if(color != null)
                         {
@@ -814,13 +816,14 @@ class Voxel
                             var face_color = this.color[index][i].map(x => Math.abs(1-x* 0.5) )
                         }
 
-                        setSelection({
+                        selection.push({
                             voxel:[this.voxels[index]],
                             direction:directions[direction_id],
                             color:[this.color[index][i]],
                             mouse_color:this.color[index][i],
                             index:index,
                         })
+                        
 
                         for(var j = 0; j < 4; j++)
                         {
@@ -858,6 +861,7 @@ class Voxel
             }
 
         }
+        setSelection(selection)
         return result;
         
     }

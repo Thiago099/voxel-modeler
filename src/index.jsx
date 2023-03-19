@@ -200,8 +200,44 @@ main.$parent(document.body)
 var voxel = new Voxel()
 voxel.init()
 
+function get_mouse(e)
+{
+    const rect = canvas.__element.getBoundingClientRect();
+    var x = (e.clientX - rect.left) * canvas.width / canvas.clientWidth;
+    var y = canvas.height - (e.clientY - rect.top) * canvas.height / canvas.clientHeight - 1;
+    return [x,y]
+}
+
+function flood(x1, y1, x2, y2,theta) {
+    var rx = x2;
+    var ry = y2;
+
+    var px, py,minx,miny,maxx,maxy;
 
 
+    if (x1 == x2) {
+      px = 1;
+    } else {
+      px = 1 / Math.abs(x2 - x1) ;
+    }
+    if (y1 == y2) {
+      py = 1;
+    } else {
+      py = 1 / Math.abs(y2 - y1) ;
+    }
+    var p = Math.min(px, py) * theta;
+    var s = 0;
+    var result = [];
+    var cx = minx;
+    var cy = miny;
+    while (s <= 1) {
+      cx = x1 * (1 - s) + x2 * s;
+      cy = y1 * (1 - s) + y2 * s;
+      result.push([cx, cy]);
+      s += p;
+    }
+    return result;
+  }
 
 async function process(){
     var vertCode = await fetch("./shader.vert").then(res=>res.text())
@@ -257,12 +293,47 @@ async function process(){
 
 
     var click_position = null
+
+    var positions =[]
+    var px = 0
+    var py = 0
+    var drag = false
+
+
+    var ctrlDown = false;
+    document.addEventListener('keydown', function(event) {
+        if (event.key == "Control") {
+            ctrlDown = true;
+        }
+    });
+    document.addEventListener('keyup', function(event) {
+        if (event.key == "Control") {
+            ctrlDown = false;
+        }
+    });
+    
     canvas.$on("mousedown",e=>{
+        if(ctrlDown) return
         click_position = [e.offsetX,e.offsetY]
         if(e.button == 1)
         {
             e.preventDefault()
         }
+        else if(e.button == 0 || e.button == 2)
+        {
+            const [x,y] = get_mouse(e)
+            px = x
+            py = y
+            drag = true
+            positions = []
+        }
+    })
+    canvas.$on("mousemove",e=>{
+        if(!drag) return
+        const [x,y] = get_mouse(e)
+        positions.push(...flood(x,y,px,py,10))
+        px = x
+        py = y
     })
 
     canvas.$on("contextmenu",e=>{
@@ -271,52 +342,120 @@ async function process(){
     })
     canvas.$on("mouseup",e=>{
         // if radius is less than 5 pixels
-        if(!click_position || Math.abs(e.offsetX - click_position[0]) > 3 || Math.abs(e.offsetY - click_position[1]) > 3) return
+        // if(!click_position || Math.abs(e.offsetX - click_position[0]) > 3 || Math.abs(e.offsetY - click_position[1]) > 3) return
         // left button
-
+        positions = []
+        drag = false
         if(!selection) return
 
-        if(selected_mode == "Sculpt")
+        
+        if(selected_tool == "Point")
         {
-
-            if(e.button == 0)
+            if(selected_mode == "Sculpt")
             {
-                voxel.add(...selection.voxel.map(u=>u.map((x,i)=>x+selection.direction[i])))
-                builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
-                builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+    
+                if(e.button == 0)
+                {
+                    var new_voxels = []
+                    for(var item of selection)
+                    {
+                        new_voxels.push(...item.voxel.map(u=>u.map((x,i)=>x+item.direction[i])))
+                    }
+                    voxel.add(...new_voxels)
+                    builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+                    builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+                }
+                else if(e.button == 2)
+                {
+                    var new_voxels = []
+                    for(var item of selection)
+                    {
+                        new_voxels.push(...item.voxel)
+                    }
+                    voxel.remove(...new_voxels)
+                    builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+                    builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+                }
             }
-            else if(e.button == 2)
+            else
             {
-                voxel.remove(...selection.voxel)
-                builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
-                builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+                if(e.button == 0)
+                {
+                    last = foreground
+                    for(var item of selection)
+                    {
+                        for(var j = 0; j < item.color.length; j++)
+                        for(var i = 0; i < 3; i++)
+                        {
+                            item.color[j][i] = (item.color[j][i] * (1 - foreground[3]))+(foreground[i]*foreground[3] )
+                        }
+                    }
+                }
+                else if(e.button == 2)
+                {
+                    last = background
+                    for(var item of selection)
+                    {
+                        for(var j = 0; j < item.color.length; j++)
+                        for(var i = 0; i < 3; i++)
+                        {
+                            item.color[j][i] = (item.color[j][i] * (1 - background[3]))+(background[i]*background[3] )
+                        }
+                    }
+                }
+                if(e.button == 1)
+                {
+                    foreground = [...selection.mouse_color,1]
+                    last = foreground
+                    SetColor(foreground)
+                }
             }
         }
         else
         {
-            if(e.button == 0)
+
+            if(selected_mode == "Sculpt")
             {
-                last = foreground
-                for(var j = 0; j < selection.color.length; j++)
-                for(var i = 0; i < 3; i++)
+    
+                if(e.button == 0)
                 {
-                    selection.color[j][i] = (selection.color[j][i] * (1 - foreground[3]))+(foreground[i]*foreground[3] )
+                    voxel.add(...selection.voxel.map(u=>u.map((x,i)=>x+selection.direction[i])))
+                    builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+                    builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+                }
+                else if(e.button == 2)
+                {
+                    voxel.remove(...selection.voxel)
+                    builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
+                    builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
                 }
             }
-            else if(e.button == 2)
+            else
             {
-                last = background
-                for(var j = 0; j < selection.color.length; j++)
-                for(var i = 0; i < 3; i++)
+                if(e.button == 0)
                 {
-                    selection.color[j][i] = (selection.color[j][i] * (1 - background[3]))+(background[i]*background[3] )
+                    last = foreground
+                    for(var j = 0; j < selection.color.length; j++)
+                    for(var i = 0; i < 3; i++)
+                    {
+                        selection.color[j][i] = (selection.color[j][i] * (1 - foreground[3]))+(foreground[i]*foreground[3] )
+                    }
                 }
-            }
-            if(e.button == 1)
-            {
-                foreground = [...selection.mouse_color,1]
-                last = foreground
-                SetColor(foreground)
+                else if(e.button == 2)
+                {
+                    last = background
+                    for(var j = 0; j < selection.color.length; j++)
+                    for(var i = 0; i < 3; i++)
+                    {
+                        selection.color[j][i] = (selection.color[j][i] * (1 - background[3]))+(background[i]*background[3] )
+                    }
+                }
+                if(e.button == 1)
+                {
+                    foreground = [...selection.mouse_color,1]
+                    last = foreground
+                    SetColor(foreground)
+                }
             }
         }
     })
@@ -360,7 +499,15 @@ async function process(){
             clear()
             builder.attribute_matrix_4_float.color = voxel.pick_map;
             builder.drawSolid(voxel.geometry_indexes)
-            pixel = builder.getPixel(mouse.x, mouse.y)
+            if(selected_tool == "Point")
+            {
+                pixel = positions.map(u=>builder.getPixel(u[0], u[1]))
+            }
+            else
+            {
+
+                pixel = builder.getPixel(mouse.x, mouse.y)
+            }
         })
 
         
