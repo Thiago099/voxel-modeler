@@ -397,7 +397,7 @@ async function process(){
         {
             e.preventDefault()
         }
-        else if(e.button == 0 || e.button == 2)
+        else if(e.button == 0 || e.button == 2 && selected_tool == "Pen")
         {
             const [x,y] = get_mouse(e)
             px = x
