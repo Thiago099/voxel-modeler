@@ -20,28 +20,28 @@ function getGeometry(voxels) {
 
 function weld(ids,vertexes)
 {
-  var map = {};
-  for(var i = 0; i < ids.length; i++)
-  {
-    var key = ids[i].join(",");
-    if(map[key] == undefined)
+    var vert_map = {}
+    var result_vertexes = []
+    var idx = 1
+    for(var i = 0;i<vertexes.length;i++)
     {
-      map[key] = [i];
+        var key = vertexes[i].join(",")
+        if(vert_map[key] == undefined)
+        {
+            vert_map[key] = idx
+            result_vertexes.push(vertexes[i])
+            idx ++
+        }
     }
-    else
+    for(var face of ids)
     {
-      map[key].push(i);
+        for(var id in face)
+        {
+            face[id] = vert_map[vertexes[face[id]].join(",")]
+        }
     }
-  }
-  var new_vertexes = [];
-  var new_ids = [];
-  for(const [key, value] of Object.entries(map))
-  {
-    var index = new_vertexes.length;
-    new_vertexes.push(vertexes[value[0]]);
-    new_ids.push(value.map((item) => index));
-  }
-  return [new_vertexes,new_ids];
+
+  return [result_vertexes,ids];
 }
 
 

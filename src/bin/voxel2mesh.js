@@ -41,7 +41,7 @@ function voxel2mesh(voxel)
     }
     var result_position = []
     var result_index = []
-    var offset = 1
+    var offset = 0
     for(var i in layers)
     {
         var layer = layers[i]
@@ -83,15 +83,19 @@ function voxel2mesh(voxel)
             offset += result.positions.length / 2
         }
     }
+    var [vert,index] = weld(result_index,result_position)
+    // var vert = result_position
+    // var index = result_index
+    console.log(vert,index)
     var result = ""
-    for(var i = 0;i<result_position.length;i++)
+    for(var i = 0;i<vert.length;i++)
     {
-        result += `v ${result_position[i][0]} ${result_position[i][1]} ${result_position[i][2]}\n`
+        result += `v ${vert[i][0]} ${vert[i][1]} ${vert[i][2]}\n`
     }
     result += "\n"
-    for(var i = 0;i<result_index.length;i++)
+    for(var i = 0;i<index.length;i++)
     {
-        result +=`f ${result_index[i][0]} ${result_index[i][1]} ${result_index[i][2]}\n`
+        result +=`f ${index[i][0]} ${index[i][1]} ${index[i][2]}\n`
     }
     navigator.clipboard.writeText(result);
 }
