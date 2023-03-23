@@ -205,18 +205,27 @@ main.$parent(document.body)
 
 var voxel = new Voxel()
 voxel.init()
-
+var normals = `
+vn -0.000000 0.000000 1.000000
+vn 0.000000 0.000000 -1.000000
+vn 0.000000 1.000000 0.000000
+vn 0.000000 -1.000000 0.000000
+vn 1.000000 0.000000 0.000000
+vn -1.000000 -0.000000 -0.000000
+`
 _export = () => {
-    const {vert,index} = voxel2mesh(voxel)
+    const {vert,index,normal} = voxel2mesh(voxel)
     var result = ""
     for(var i = 0;i<vert.length;i++)
     {
         result += `v ${vert[i][0]} ${vert[i][1]} ${vert[i][2]}\n`
     }
     result += "\n"
+    result += normals
+    result += "\n"
     for(var i = 0;i<index.length;i++)
     {
-        result +=`f ${index[i][0]} ${index[i][1]} ${index[i][2]}\n`
+        result +=`f ${index[i][0]}//${normal[i]} ${index[i][1]}//${normal[i]} ${index[i][2]}//${normal[i]}\n`
     }
     SaveText("voxel.obj",result)
 }

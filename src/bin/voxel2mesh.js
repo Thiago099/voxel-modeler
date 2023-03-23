@@ -10,6 +10,8 @@ const directions = [
 ]
 const relevant =[2,2,1,1,0,0]
 const pad = [1,0,1,0,1,0]
+
+
 function voxel2mesh(voxel)
 {
     var points = voxel.voxels
@@ -34,19 +36,20 @@ function voxel2mesh(voxel)
             direction_id += 1
         }
     }
-    console.log(layers)
     for(var i in layers)
     {
         layers[i].data = getGeometry(layers[i].data)
     }
     var result_position = []
     var result_index = []
+    var normal = []
     var offset = 0
     for(var i in layers)
     {
         var layer = layers[i]
         for(var result of layer.data)
         {
+
             for(var j =0;j<result.positions.length;j+=2)
             {
                 var current = [result.positions[j],result.positions[j+1]]
@@ -55,6 +58,7 @@ function voxel2mesh(voxel)
             }
             for(var j =0;j<result.indices.length;j+=3)
             {
+                normal.push(layer.direction+1)
                 var face = [result.indices[j]+offset,result.indices[j+1]+offset,result.indices[j+2]+offset]
                 // fix the orientation
                 if(layer.direction == 1)
@@ -75,16 +79,13 @@ function voxel2mesh(voxel)
                     face[1] = face[2]
                     face[2] = temp
                 }
-
-
-
                 result_index.push(face)
             }
             offset += result.positions.length / 2
         }
     }
     var [vert,index] = weld(result_index,result_position)
-    return {vert,index}
+    return {vert,index,normal}
 
 }
 
