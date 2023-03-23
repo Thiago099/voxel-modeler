@@ -84,20 +84,8 @@ function voxel2mesh(voxel)
         }
     }
     var [vert,index] = weld(result_index,result_position)
-    // var vert = result_position
-    // var index = result_index
-    console.log(vert,index)
-    var result = ""
-    for(var i = 0;i<vert.length;i++)
-    {
-        result += `v ${vert[i][0]} ${vert[i][1]} ${vert[i][2]}\n`
-    }
-    result += "\n"
-    for(var i = 0;i<index.length;i++)
-    {
-        result +=`f ${index[i][0]} ${index[i][1]} ${index[i][2]}\n`
-    }
-    navigator.clipboard.writeText(result);
+    return {vert,index}
+
 }
 
 export {voxel2mesh}

@@ -10,6 +10,17 @@ function Save(name, obj)
     a.click();
     a.remove()
 }
+function SaveText(name, data)
+{
+    var blob = new Blob([data], {type: "plain/text"});
+    var url  = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.download    = name;
+    a.href        = url;
+    a.textContent = "Download";
+    a.click();
+    a.remove()
+}
 async function Load(extension, callback)
 {
     var input = document.createElement('input');
@@ -28,4 +39,4 @@ async function Load(extension, callback)
     input.remove()
 }
 
-export {Save, Load}
+export {Save, Load, SaveText}

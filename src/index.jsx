@@ -12,7 +12,7 @@ import { ToolSelector } from './components/tool-selection/tool-selection'
 import { ToggleButton } from './components/toggle-button/toggle-button'
 import { ActionButton } from './components/action-button/action-button'
 import ColorPicker from './components/color-selection/color-selection'
-import { Save, Load } from './bin/persistence'
+import { Save, Load, SaveText } from './bin/persistence'
 import { voxel2mesh } from './bin/voxel2mesh'
 
 
@@ -207,7 +207,18 @@ var voxel = new Voxel()
 voxel.init()
 
 _export = () => {
-    voxel2mesh(voxel)
+    const {vert,index} = voxel2mesh(voxel)
+    var result = ""
+    for(var i = 0;i<vert.length;i++)
+    {
+        result += `v ${vert[i][0]} ${vert[i][1]} ${vert[i][2]}\n`
+    }
+    result += "\n"
+    for(var i = 0;i<index.length;i++)
+    {
+        result +=`f ${index[i][0]} ${index[i][1]} ${index[i][2]}\n`
+    }
+    SaveText("voxel.obj",result)
 }
     
 
