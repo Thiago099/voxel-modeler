@@ -13,12 +13,13 @@ import { ToggleButton } from './components/toggle-button/toggle-button'
 import { ActionButton } from './components/action-button/action-button'
 import ColorPicker from './components/color-selection/color-selection'
 import { Save, Load } from './bin/persistence'
-
+import { voxel2mesh } from './bin/voxel2mesh'
 
 
 var subdivide = null
 var save = null
 var load = null
+var _export = null
 var reset_pan = null
 var reset_rotation = null
 var undo_fn = null
@@ -192,6 +193,7 @@ const main =
             </h3>
             {ActionButton("Save project",()=>save())}
             {ActionButton("Load project",()=>load())}
+            {ActionButton("Export obj",()=>_export())}
         </p>
     </div>
 </div>
@@ -203,6 +205,11 @@ main.$parent(document.body)
 
 var voxel = new Voxel()
 voxel.init()
+
+_export = () => {
+    voxel2mesh(voxel)
+}
+    
 
 function get_mouse(e)
 {
