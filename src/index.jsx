@@ -543,7 +543,7 @@ async function process(){
         const [x,y] = get_mouse(e)
         if(selected_tool == "Line")
         {
-            positions = [[px,py],...flood(x,y,px,py,5),[x,y]]
+            positions = [[px,py],flood(x,y,px,py,5),[x,y]]
         }
         else
         {
