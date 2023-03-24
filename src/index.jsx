@@ -396,6 +396,7 @@ async function process(){
 
             builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
             builder.attribute_matrix_3_float.position = voxel.geometry_vertexes;
+            push_history()
         })
     }
 
