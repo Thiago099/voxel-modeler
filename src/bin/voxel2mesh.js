@@ -115,13 +115,16 @@ function voxel2mesh(voxel)
         if(reverse)
         {
             w = max_y - min_y + 1
+            x -= min_y
         }
+        else
+        {
+            x -= min_x
+        }
+        x += 1
 
-        console.log("x",x)
-        console.log("y",y)
         if(x > row_width_for_sqaure)
         {
-            console.log("new row")
             x = 0
             y += full_height
         }
@@ -136,14 +139,14 @@ function voxel2mesh(voxel)
             {
                 uv_color.push({
                     color,
-                    position:[position[1]+x,y+position[0]-min_x],
+                    position:[position[1]+x,y+position[0]],
                 })
             }
             else
             {
                 uv_color.push({
                     color,
-                    position:[position[0]+x,y+position[1]-min_y],
+                    position:[position[0]+x,y+position[1]],
                 })
             }
         }
@@ -158,11 +161,11 @@ function voxel2mesh(voxel)
                 result_position.push(current)
                 if(reverse)
                 {
-                    uv_position.push([result.positions[j+1]+x,y-1+result.positions[j]-min_x+1])
+                    uv_position.push([result.positions[j+1]+x,y-1+result.positions[j]+1])
                 }
                 else
                 {
-                    uv_position.push([result.positions[j]+x,y-1+result.positions[j+1]-min_y+1])
+                    uv_position.push([result.positions[j]+x,y-1+result.positions[j+1]+1])
                 }
             }
             for(var j =0;j<result.indices.length;j+=3)

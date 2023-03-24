@@ -38,10 +38,9 @@ function build_hd_texture({uv_color,width,height},scale = 32)
 
     for(var item of uv_color)
     {
-        console.log(item)
         var [x,y] = item.position
         var [r,g,b] = item.color
-        ctx.fillStyle = `rgba(${r*255},${g*255},${b*255},0.3)`
+        ctx.fillStyle = `rgb(${r*255},${g*255},${b*255})`
         ctx.fillRect(x*scale,y*scale,scale,scale)
     }
 
@@ -53,7 +52,6 @@ function build_hd_texture({uv_color,width,height},scale = 32)
     
 function build_texture({uv_color,width,height})
 {
-    console.log(uv_color)
     var canvas = document.createElement("canvas")
     canvas.width = width
     canvas.height = height
@@ -75,7 +73,6 @@ function build_texture({uv_color,width,height})
       }
     for(var item of uv_color)
     {
-        console.log(item)
         var [x,y] = item.position
         var [r,g,b] = item.color
         var index = (x + y * width) * 4;

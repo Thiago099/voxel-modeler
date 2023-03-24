@@ -238,11 +238,11 @@ _export = () => {
         </div>
         <div class="row margin">
             <div>
-                <label>Filename</label>
+                <label>File name</label>
                 <input type="text" class="input" model={filename}></input>
             </div>
             <div>
-                <label>Square size</label>
+                <label>Texture voxel size</label>
                 <input type="number" class="input" model={square_size}></input>
             </div>
         </div>
@@ -352,7 +352,7 @@ async function process(){
         <div class="prompt-small col">
             <div class="row margin">
                 <div>
-                    <label>Filename</label>
+                    <label>File name</label>
                     <input type="text" class="input" model={filename}></input>
                 </div>
             </div>
