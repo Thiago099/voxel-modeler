@@ -4,6 +4,7 @@ import RGBTrackBar from '../rgb-trackbar/rgb-trackbar'
 import { Save, Load } from '../../bin/persistence'
 function ColorPicker({set,get})
 {
+    const hexInput = ref()
     var r = 0
     var g = 0
     var b = 0
@@ -89,10 +90,46 @@ function ColorPicker({set,get})
         element.$parent(colors)
     }
 
-
+    function rgb2hex(r,g,b)
+    {
+        console.log(r,g,b)
+        return [r,g,b].map(x=>parseInt(x).toString(16).padStart(2,"0")).join("")
+    }
+    function hex2rgb(hex)
+    {
+        var r = parseInt(hex.substring(0,2),16)
+        var g = parseInt(hex.substring(2,4),16)
+        var b = parseInt(hex.substring(4,6),16)
+        return [r,g,b]
+    }
+    function isValidHex(hex)
+    {
+        return hex.length == 6 && !isNaN(parseInt(hex,16))
+    }
+    function valueChange(e)
+    {
+        var hex = e.target.value
+        // if contains #
+        if(hex.startsWith("#"))
+        {
+            hex = hex.substring(1)
+            hexInput.value = hex
+        }
+        if(!isValidHex(hex)) return
+        var rgb = hex2rgb(hex)
+        r = rgb[0]
+        g = rgb[1]
+        b = rgb[2]
+        send()
+        if(result) result.$update()
+    }
 
     var result = 
     <div>
+        <div style="width:100px;margin:10px;position:relative">
+            <div class="hash-tag">#</div>
+        <input type="text" class="input hex-input" maxLength="6" on:input={valueChange} ref={hexInput} />
+        </div>
         <div style="display:flex;flex-direction:row">
             <div style="width:100%;padding:10px">
             <RGBTrackBar start={r} colorFrom={`0,${g},${b}`} colorTo={`255,${g},${b}`} callback={x=>updateR(x)}/>
@@ -140,6 +177,7 @@ function ColorPicker({set,get})
     </div>
     function send(changed="foreground") {
         get(changed,{r,g,b,a},{r:br,g:bg,b:bb,a:ba})
+        hexInput.value = rgb2hex(r,g,b)
     }
     set(receive())
     function receive()

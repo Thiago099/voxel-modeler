@@ -89,6 +89,7 @@ function updateColor(changed,fg,bg)
     }
 }
 var set = null
+var fill_all_with_color = null
 
 function SetColor(fg,bg)
 {
@@ -126,10 +127,13 @@ const main =
             {ToolSelector(modes, x => {selected_mode = x,last=foreground},"Sculpt")}
         </p>
         <p>
+
             <h3>
                 Color
             </h3>
             <ColorPicker get={(changed,fg,bg)=>updateColor(changed, fg,bg)} set={fn=>set=fn}></ColorPicker>
+            {ActionButton("Fill all",()=>fill_all_with_color())}
+
         </p>
     </div>
     {/* <div class="tip-box">
@@ -159,7 +163,7 @@ const main =
                 
         </p>
     </div> */}
-    <canvas ref={canvas}></canvas>
+    <canvas ref={canvas} ></canvas>
     <div class="info">
         <p>
             FPS: <span ref={fps}></span>
@@ -191,6 +195,7 @@ const main =
             {ActionButton("Subdivide",()=>subdivide())}
             {ActionButton("Undo",()=>undo_fn())}
             {ActionButton("Redo",()=>redo_fn())}
+
         </p>
         <p>
             <h3>
@@ -210,6 +215,8 @@ main.$parent(document.body)
 
 var voxel = new Voxel()
 voxel.init()
+
+
 
 _export = () => {
 
@@ -404,7 +411,20 @@ async function process(){
     }
 
 
-    
+    fill_all_with_color = () => {
+        // set all colors in voxel to foreground
+        for(var i = 0; i < voxel.color.length; i++)
+        {
+            for(var j = 0; j < voxel.color[i].length; j++)
+            {
+                for(var k = 0; k < 3; k++)
+                {
+                    voxel.color[i][j][k] = voxel.color[i][j][k] * (1 - foreground[3]) + (foreground[k]*foreground[3] )
+                }
+            }
+        }
+        push_history()
+    }
 
     
     var selection = null

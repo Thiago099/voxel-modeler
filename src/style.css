@@ -6,11 +6,15 @@ body{
     align-items: center;
     /* font-size: 5em; */
 }
-
+canvas{
+    width: 800px;
+    height: 800px;
+}
 .main{
     display: flex;
     flex-direction: row;
     width: 100vw;
+    align-items: center;
 }
 .info{
     padding-left: 30px;

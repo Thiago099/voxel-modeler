@@ -102,3 +102,18 @@
    z-index: -100;
    border-radius: 5px;
  }
+
+
+ .input{
+   display: flex;
+   width: 100%;
+ }
+
+ .hex-input{
+   padding-left: 20px;
+ }
+.hash-tag{
+   position: absolute;
+   top: 5px;
+   left: 10px;
+}
