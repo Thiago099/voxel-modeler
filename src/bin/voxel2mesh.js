@@ -92,18 +92,39 @@ function voxel2mesh(voxel)
     {
         var layer = layers[i]
 
+        var reverse = false
+        if(layer.direction == 4 || layer.direction == 5)
+        {
+            reverse = true
+        }
+
         var [min_x,min_y,max_x,max_y] = get_bounds(layer.data)
-        var y = - min_y
+        var y = min_y 
         x -= min_x;
+
+        var h = max_y - min_y + 1
+
         for(var index in layer.data)
         {
             var color = layer.colors[index]
             var position = layer.data[index]
-            uv_color.push({
-                color,
-                position:[position[0]+x,position[1]+y],
-            })
+
+            if(reverse)
+            {
+                uv_color.push({
+                    color,
+                    position:[position[1]+x,h-(position[0])+y-1],
+                })
+            }
+            else
+            {
+                uv_color.push({
+                    color,
+                    position:[position[0]+x,h-(position[1])+y-1],
+                })
+            }
         }
+
         for(var index in layer.geometry)
         {
             var result = layer.geometry[index]
@@ -112,7 +133,14 @@ function voxel2mesh(voxel)
                 var current = [result.positions[j],result.positions[j+1]]
                 current.splice(layer.relevant,0,layer.position)
                 result_position.push(current)
-                uv_position.push([result.positions[j]+x,result.positions[j+1]+y])
+                if(reverse)
+                {
+                    uv_position.push([result.positions[j+1]+x,result.positions[j]+y])
+                }
+                else
+                {
+                    uv_position.push([result.positions[j]+x,result.positions[j+1]+y])
+                }
             }
             for(var j =0;j<result.indices.length;j+=3)
             {
