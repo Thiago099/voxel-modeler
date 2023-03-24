@@ -214,18 +214,23 @@ vn 1.000000 0.000000 0.000000
 vn -1.000000 -0.000000 -0.000000
 `
 _export = () => {
-    const {vert,index,normal} = voxel2mesh(voxel)
+    const {vert,index,normal,uv_position,uv_index} = voxel2mesh(voxel)
     var result = ""
     for(var i = 0;i<vert.length;i++)
     {
         result += `v ${vert[i][0]} ${vert[i][1]} ${vert[i][2]}\n`
     }
     result += "\n"
+    for(var i = 0;i<uv_position.length;i++)
+    {
+        result += `vt ${uv_position[i][0]} ${uv_position[i][1]}\n`
+    }
+    result += "\n"
     result += normals
     result += "\n"
     for(var i = 0;i<index.length;i++)
     {
-        result +=`f ${index[i][0]}//${normal[i]} ${index[i][1]}//${normal[i]} ${index[i][2]}//${normal[i]}\n`
+        result +=`f ${index[i][0]}/${uv_index[i][0]}/${normal[i]} ${index[i][1]}/${uv_index[i][1]}/${normal[i]} ${index[i][2]}/${uv_index[i][2]}/${normal[i]}\n`
     }
     SaveText("voxel.obj",result)
 }

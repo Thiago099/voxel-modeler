@@ -40,6 +40,10 @@ function voxel2mesh(voxel)
     {
         layers[i].data = getGeometry(layers[i].data)
     }
+
+    var uv_position = []
+    var uv_index = []
+
     var result_position = []
     var result_index = []
     var normal = []
@@ -55,6 +59,7 @@ function voxel2mesh(voxel)
                 var current = [result.positions[j],result.positions[j+1]]
                 current.splice(layer.relevant,0,layer.position)
                 result_position.push(current)
+                uv_position.push([result.positions[j],result.positions[j+1]])
             }
             for(var j =0;j<result.indices.length;j+=3)
             {
@@ -79,14 +84,14 @@ function voxel2mesh(voxel)
                     face[1] = face[2]
                     face[2] = temp
                 }
+                uv_index.push(face.map(x=>x+1))
                 result_index.push(face)
             }
             offset += result.positions.length / 2
         }
     }
     var [vert,index] = weld(result_index,result_position)
-    return {vert,index,normal}
-
+    return {vert,index,normal,uv_position,uv_index}
 }
 
 export {voxel2mesh}
