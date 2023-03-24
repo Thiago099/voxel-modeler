@@ -2,7 +2,7 @@ You can click to add and remove voxels, with a variety of tools, that you can al
 
 Once you are done you can save a editable .vox file or a obj file with a texture
 
-![image](https://user-images.githubusercontent.com/66787043/227627157-d029fc5b-8596-4bab-aaf8-9c774a49298c.png)
+![image](https://user-images.githubusercontent.com/66787043/227627193-07205c31-20b1-4c93-8e15-442b071af9cc.png)
 
 [gh pages preview](https://thiago099.github.io/voxel-modeler/)
 
