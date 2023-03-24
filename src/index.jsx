@@ -32,6 +32,9 @@ const tools = [
         name: "Pen"
     },
     {
+        name: "Line"
+    },
+    {
         name: "Plane"
     },
     {
@@ -517,6 +520,14 @@ async function process(){
             positions = [[x,y]]
         }
 
+        if(selected_tool == "Line")
+        {
+            const [x,y] = get_mouse(e)
+            px = x
+            py = y
+            drag = true
+        }
+
         if(e.button == 0)
         {
             last = foreground
@@ -528,10 +539,18 @@ async function process(){
     })
     canvas.$on("mousemove",e=>{
         if(!drag) return
+        
         const [x,y] = get_mouse(e)
-        positions.push(...flood(x,y,px,py,5))
-        px = x
-        py = y
+        if(selected_tool == "Line")
+        {
+            positions = [[px,py],...flood(x,y,px,py,5),[x,y]]
+        }
+        else
+        {
+            positions.push(...flood(x,y,px,py,5))
+            px = x
+            py = y
+        }
     })
 
     canvas.$on("contextmenu",e=>{
@@ -551,7 +570,7 @@ async function process(){
         if(!selection) return
 
         
-        if(selected_tool == "Pen")
+        if(selected_tool == "Pen" || selected_tool == "Line")
         {
             if(selected_mode == "Sculpt")
             {
@@ -717,6 +736,17 @@ async function process(){
                     pixel_group = [builder.getPixel(mouse.x, mouse.y)]
                 }
             }
+            else if(selected_tool == "Line")
+            {
+                if(drag)
+                {
+                    pixel_group = positions.map(u=>builder.getPixel(u[0], u[1]))
+                }
+                else
+                {
+                    pixel_group = [builder.getPixel(mouse.x, mouse.y)]
+                }
+            }
             else
             {
 
@@ -737,7 +767,7 @@ async function process(){
         selection = null
 
 
-        if(selected_tool == "Pen")
+        if(selected_tool == "Pen" || selected_tool == "Line")
         {
             if(selected_mode == "Sculpt")
             {
