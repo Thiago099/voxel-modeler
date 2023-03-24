@@ -172,11 +172,12 @@ function voxel2mesh(voxel)
             
         }
         x += max_x - min_x + 1
-        if(max_y - min_y > height)
+        if(max_y - min_y + 1 > height)
         {
             height = max_y - min_y + 1
         }
     }
+    console.log(x, height)
     uv_position = uv_position.map(y=>[y[0]/x,y[1]/height])
 
 
