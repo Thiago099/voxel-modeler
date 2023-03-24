@@ -337,10 +337,7 @@ class Voxel
     {
         this.voxels.push(...voxel)
         this.init_colors(voxel)
-        this.build_boundary()
-        this.build_center()
-        this.rebuild_faces(voxel)
-        this.build_geometry()
+        this.init()
     }
     subdivide()
     {
@@ -418,10 +415,7 @@ class Voxel
                 }
             }
         }
-        this.build_boundary()
-        this.build_center()
-        this.rebuild_remove_faces(delete_voxels)
-        this.build_geometry()
+        this.init()
     }
     get_plane_color(ids,selected_direction, color=null)
     {
@@ -877,140 +871,6 @@ class Voxel
         return result;
         
     }
-    rebuild_faces(voxels)
-    {
-        const faces = new Array(voxels.length).fill(0).map(x => [1,1,1,1,1,1]);
-
-        const [get_new_voxel_at] = useMap(voxels)
-        const [get_voxel_at] = useMap(this.voxels)
-
-
-        // for(var i = 0; i < voxels.length; i++)
-
-        for(var i = 0; i < voxels.length; i++)
-        // for(var j = 0; j < this.faces.length; j++)
-        {
-            var top = getTop(voxels[i],get_voxel_at)
-            if(top)
-            {
-                faces[i][4] = 0;
-                this.faces[top][5] = 0;
-            }
-            var bottom = getBottom(voxels[i],get_voxel_at)
-            if(bottom)
-            {
-                faces[i][5] = 0;
-                this.faces[bottom][4] = 0;
-            }
-            
-            var right = getRight(voxels[i],get_voxel_at)
-            if(right)
-            {
-                faces[i][2] = 0;
-                this.faces[right][3] = 0;
-            }
-            var left = getLeft(voxels[i],get_voxel_at)
-            if(left)
-            {
-                faces[i][3] = 0;
-                this.faces[left][2] = 0;
-            }
-
-            var front = getFront(voxels[i],get_voxel_at)
-            if(front)
-            {
-                faces[i][0] = 0;
-                this.faces[front][1] = 0;
-            }
-            var back = getBack(voxels[i],get_voxel_at)
-            if(back)
-            {
-                faces[i][1] = 0;
-                this.faces[back][0] = 0;
-            }
-        }
-        for(var i = 0; i < voxels.length; i++)
-        {
-            var top = getTop(voxels[i],get_new_voxel_at)
-            if(top)
-            {
-                faces[i][4] = 0;
-                faces[top][5] = 0;
-            }
-            var bottom = getBottom(voxels[i],get_new_voxel_at)
-            if(bottom)
-            {
-                faces[i][5] = 0;
-                faces[bottom][4] = 0;
-            }
-            var right = getRight(voxels[i],get_new_voxel_at)
-            if(right)
-            {
-                faces[i][2] = 0;
-                faces[right][3] = 0;
-            }
-            var left = getLeft(voxels[i],get_new_voxel_at)
-            if(left)
-            {
-                faces[i][3] = 0;
-                faces[left][2] = 0;
-            }
-
-            var front = getFront(voxels[i],get_new_voxel_at)
-            if(front)
-            {
-                faces[i][0] = 0;
-                faces[front][1] = 0;
-            }
-            var back = getBack(voxels[i],get_new_voxel_at)
-            if(back)
-            {
-                faces[i][1] = 0;
-                faces[back][0] = 0;
-            }
-        }
-        this.faces.push(...faces)
-    }
-
-    rebuild_remove_faces(voxels)
-    {
-        const [get_voxel_at] = useMap(this.voxels)
-        for(var i = 0; i < voxels.length; i++)
-        // for(var j = 0; j < this.voxels.length; j++)
-        {
-            
-            var top = getTop(voxels[i],get_voxel_at)
-            if(top)
-            {
-                this.faces[top][5] = 1;
-            }
-            var bottom = getBottom(voxels[i],get_voxel_at)
-            if(bottom)
-            {
-                this.faces[bottom][4] = 1;
-            }
-            var right = getRight(voxels[i],get_voxel_at)
-            if(right)
-            {
-                this.faces[right][3] = 1;
-            }
-            var left = getLeft(voxels[i],get_voxel_at)
-            if(left)
-            {
-                this.faces[left][2] = 1;
-            }
-            var front = getFront(voxels[i],get_voxel_at)
-            if(front)
-            {
-                this.faces[front][1] = 1;
-            }
-            var back = getBack(voxels[i],get_voxel_at)
-            if(back)
-            {
-                this.faces[back][0] = 1;
-            }
-        }
-    }
         
     build_faces()
     {
@@ -1028,6 +888,7 @@ class Voxel
                 faces[i][4] = 0;
                 faces[top][5] = 0;
             }
+            
             var bottom = getBottom(voxels[i],get_voxel_at)
 
             if(bottom)
