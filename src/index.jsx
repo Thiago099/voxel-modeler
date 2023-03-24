@@ -12,8 +12,10 @@ import { ToolSelector } from './components/tool-selection/tool-selection'
 import { ToggleButton } from './components/toggle-button/toggle-button'
 import { ActionButton } from './components/action-button/action-button'
 import ColorPicker from './components/color-selection/color-selection'
-import { Save, Load, SaveText } from './bin/persistence'
+import { Save, Load, SaveText, SaveImage } from './bin/persistence'
 import { voxel2mesh } from './bin/voxel2mesh'
+import modal from  './components/modal/modal'
+import {build_obj_file,build_texture,build_hd_texture} from './bin/waveformat'
 
 
 var subdivide = null
@@ -205,104 +207,81 @@ main.$parent(document.body)
 
 var voxel = new Voxel()
 voxel.init()
-var normals = `
-vn -0.000000 0.000000 1.000000
-vn 0.000000 0.000000 -1.000000
-vn 0.000000 1.000000 0.000000
-vn 0.000000 -1.000000 0.000000
-vn 1.000000 0.000000 0.000000
-vn -1.000000 -0.000000 -0.000000
-`
+
 _export = () => {
-    const {vert,index,normal,uv_position,uv_index,uv_color,width,height} = voxel2mesh(voxel)
-    build_hd_texture(uv_color,width,height)
-    var result = ""
-    for(var i = 0;i<vert.length;i++)
-    {
-        result += `v ${vert[i][0]} ${vert[i][1]} ${vert[i][2]}\n`
-    }
-    result += "\n"
-    for(var i = 0;i<uv_position.length;i++)
-    {
-        result += `vt ${uv_position[i][0]} ${uv_position[i][1]}\n`
-    }
-    result += "\n"
-    result += normals
-    result += "\n"
-    for(var i = 0;i<index.length;i++)
-    {
-        result +=`f ${index[i][0]}/${uv_index[i][0]}/${normal[i]} ${index[i][1]}/${uv_index[i][1]}/${normal[i]} ${index[i][2]}/${uv_index[i][2]}/${normal[i]}\n`
-    }
-    SaveText("voxel.obj",result)
-}
 
-function build_hd_texture(uv_color,width,height)
-{
-    var canvas = document.createElement("canvas")
-    canvas.width = width * 32
-    canvas.height = height * 32
-    var ctx = canvas.getContext("2d")
+    var save_obj_preferences = localStorage.getItem("save_obj_preferences")
 
-    for(var item of uv_color)
+
+
+    var texture = true
+    var geometry = true
+    var filename = "object"
+    var square_size = 1
+
+    if(save_obj_preferences != null)
     {
-        console.log(item)
-        var [x,y] = item.position
-        var [r,g,b] = item.color
-        ctx.fillStyle = `rgb(${r*255},${g*255},${b*255})`
-        ctx.fillRect(x*32,y*32,32,32)
+        console.log(save_obj_preferences)
+        save_obj_preferences = JSON.parse(save_obj_preferences)
+        texture = save_obj_preferences.texture
+        geometry = save_obj_preferences.geometry
+        filename = save_obj_preferences.filename
+        square_size = save_obj_preferences.square_size
     }
 
-    var dataURL = canvas.toDataURL("image/png");
-    var link = document.createElement('a');
-    link.download = "texture.png";
-    link.href = dataURL;
-    link.click();
-    link.remove();
-    canvas.remove();
-}
-    
-function build_texture(uv_color,width,height)
-{
-    console.log(uv_color)
-    var canvas = document.createElement("canvas")
-    canvas.width = width
-    canvas.height = height
-    var ctx = canvas.getContext("2d")
-    var imgData = ctx.createImageData(width, height);
+    var export_button = ref()
+    var modal_content = 
+    <div class="prompt col">
+        <div class="row margin">
+            {ToggleButton("Geometry",x=>geometry = x,geometry)}
+            {ToggleButton("Texture",x=>texture = x,texture)}
+        </div>
+        <div class="row margin">
+            <div>
+                <label>Filename</label>
+                <input type="text" class="input" model={filename}></input>
+            </div>
+            <div>
+                <label>Square size</label>
+                <input type="number" class="input" model={square_size}></input>
+            </div>
+        </div>
+        <button class="footer-button button" ref={export_button}>Export</button>
+    </div>
 
+    var {close} = modal(modal_content)
 
-    for (var x = 0; x < imgData.width; x++) {
-        for (var y = 0; y < imgData.height; y++) {
-          // Calculate the index of the current pixel
-          var index = (x + y * imgData.width) * 4;
-      
-          // Set the color of the current pixel
-          imgData.data[index] = 255; // red
-          imgData.data[index + 1] = 1; // green
-          imgData.data[index + 2] = 1; // blue
-          imgData.data[index + 3] = 1; // alpha
+    export_button.$on("click",() => {
+        var data = voxel2mesh(voxel)
+        if(geometry)
+        {
+            if(square_size <= 1)
+            {
+                var img = build_texture(data)
+                SaveImage(filename+".png",img)
+            }
+            else
+            {
+                var img = build_hd_texture(data,scale)
+                SaveImage(filename+".png",img)
+            }
         }
-      }
-    for(var item of uv_color)
-    {
-        console.log(item)
-        var [x,y] = item.position
-        var [r,g,b] = item.color
-        var index = (x + y * width) * 4;
-        imgData.data[index + 0] = r * 255;
-        imgData.data[index + 1] = g * 255;
-        imgData.data[index + 2] = b * 255;
-        imgData.data[index + 3] = 255; // alpha
-    }
-    ctx.putImageData(imgData, 0, 0);
-    var dataURL = canvas.toDataURL("image/png");
-    var link = document.createElement('a');
-    link.download = "texture.png";
-    link.href = dataURL;
-    link.click();
-    link.remove();
-    canvas.remove();
+        if(geometry)
+        {
+            var obj = build_obj_file(data)
+            SaveText(filename+".obj",obj)
+        }
+        var save_obj_preferences = {
+            filename: filename,
+            geometry: geometry,
+            texture: texture,
+            square_size: square_size
+        }
+        localStorage.setItem("save_obj_preferences",JSON.stringify(save_obj_preferences))
+        close()
+    })
 }
+
     
 
 function get_mouse(e)

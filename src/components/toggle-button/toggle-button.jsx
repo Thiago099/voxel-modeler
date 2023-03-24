@@ -1,9 +1,9 @@
 
 
-function ToggleButton(text,callback)
+function ToggleButton(text,callback,def=true)
 {
 
-    const selected = state({value: true})
+    const selected = state({value: def})
     var result = <button class={"button"+(selected.value?" button-selected":"")}>{text}</button>
     result.$on("click", () => {
         selected.value = !selected.value

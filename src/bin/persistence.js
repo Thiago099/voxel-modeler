@@ -38,5 +38,13 @@ async function Load(extension, callback)
     input.click();
     input.remove()
 }
+function SaveImage(name, data)
+{
+    var link = document.createElement('a');
+    link.download = name;
+    link.href = data;
+    link.click();
+    link.remove();
+}
 
-export {Save, Load, SaveText}
+export {Save, Load, SaveText, SaveImage}
