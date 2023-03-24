@@ -88,6 +88,8 @@ function voxel2mesh(voxel)
 
     var x = 0
     var height = 0
+
+
     for(var i in layers)
     {
         var layer = layers[i]
@@ -99,10 +101,8 @@ function voxel2mesh(voxel)
         }
 
         var [min_x,min_y,max_x,max_y] = get_bounds(layer.data)
-        var y = min_y 
         x -= min_x;
 
-        var h = max_y - min_y + 1
 
         for(var index in layer.data)
         {
@@ -113,14 +113,14 @@ function voxel2mesh(voxel)
             {
                 uv_color.push({
                     color,
-                    position:[position[1]+x,h-(position[0])+y-1],
+                    position:[position[1]+x,position[0]-min_x+1],
                 })
             }
             else
             {
                 uv_color.push({
                     color,
-                    position:[position[0]+x,h-(position[1])+y-1],
+                    position:[position[0]+x,position[1]-min_y+1],
                 })
             }
         }
@@ -135,11 +135,11 @@ function voxel2mesh(voxel)
                 result_position.push(current)
                 if(reverse)
                 {
-                    uv_position.push([result.positions[j+1]+x,result.positions[j]+y])
+                    uv_position.push([result.positions[j+1]+x,result.positions[j]-min_x])
                 }
                 else
                 {
-                    uv_position.push([result.positions[j]+x,result.positions[j+1]+y])
+                    uv_position.push([result.positions[j]+x,result.positions[j+1]-min_y])
                 }
             }
             for(var j =0;j<result.indices.length;j+=3)
@@ -178,6 +178,13 @@ function voxel2mesh(voxel)
         }
     }
     uv_position = uv_position.map(y=>[y[0]/x,y[1]/height])
+
+
+    for(var i in uv_color)
+    {
+        uv_color[i].position = [uv_color[i].position[0],height-uv_color[i].position[1]]
+    }
+
     var [vert,index] = weld(result_index,result_position)
     return {vert,index,normal,uv_position,uv_index,uv_color,width:x,height}
 }
