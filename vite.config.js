@@ -9,7 +9,7 @@ export default defineConfig({
     plugins:[
         jsxDomBuilderVitePlugin(),
     ],
-    // base: '/voxel-modeler/', 
+    base: '/voxel-modeler/', 
     // make the @ as a alias to the src folder (opitional but recomended)
     resolve: {
         alias: {
