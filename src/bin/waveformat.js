@@ -41,7 +41,7 @@ function build_hd_texture({uv_color,width,height},scale = 32)
         console.log(item)
         var [x,y] = item.position
         var [r,g,b] = item.color
-        ctx.fillStyle = `rgb(${r*255},${g*255},${b*255})`
+        ctx.fillStyle = `rgba(${r*255},${g*255},${b*255},0.3)`
         ctx.fillRect(x*scale,y*scale,scale,scale)
     }
 

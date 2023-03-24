@@ -253,7 +253,7 @@ _export = () => {
 
     export_button.$on("click",() => {
         var data = voxel2mesh(voxel)
-        if(geometry)
+        if(texture)
         {
             if(square_size <= 1)
             {
@@ -369,6 +369,7 @@ async function process(){
                 voxels:voxel.voxels,
                 color:voxel.color
             })
+            close()
         })
 
     }

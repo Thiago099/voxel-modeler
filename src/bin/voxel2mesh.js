@@ -87,7 +87,16 @@ function voxel2mesh(voxel)
     var offset = 0
 
     var x = 0
-    var height = 0
+    var y = 0
+    var max_height = 0
+    var max_width = 0
+
+    var all_bounds = Object.values(layers).map(x=>get_bounds(x.data))
+    var full_width = all_bounds.reduce((a,b)=>a+b[2]-b[0]+1,0)
+    var full_height = all_bounds.reduce((a,b)=>Math.max(a,b[3]-b[1]+1),0)
+
+    var row_width_for_sqaure = Math.ceil(Math.sqrt(full_width * full_height))
+
 
 
     for(var i in layers)
@@ -101,7 +110,21 @@ function voxel2mesh(voxel)
         }
 
         var [min_x,min_y,max_x,max_y] = get_bounds(layer.data)
-        x -= min_x;
+
+        var w = max_x - min_x + 1
+        if(reverse)
+        {
+            w = max_y - min_y + 1
+        }
+
+        console.log("x",x)
+        console.log("y",y)
+        if(x > row_width_for_sqaure)
+        {
+            console.log("new row")
+            x = 0
+            y += full_height
+        }
 
 
         for(var index in layer.data)
@@ -113,14 +136,14 @@ function voxel2mesh(voxel)
             {
                 uv_color.push({
                     color,
-                    position:[position[1]+x,position[0]-min_x+1],
+                    position:[position[1]+x,y+position[0]-min_x],
                 })
             }
             else
             {
                 uv_color.push({
                     color,
-                    position:[position[0]+x,position[1]-min_y+1],
+                    position:[position[0]+x,y+position[1]-min_y],
                 })
             }
         }
@@ -135,11 +158,11 @@ function voxel2mesh(voxel)
                 result_position.push(current)
                 if(reverse)
                 {
-                    uv_position.push([result.positions[j+1]+x,result.positions[j]-min_x])
+                    uv_position.push([result.positions[j+1]+x,y-1+result.positions[j]-min_x+1])
                 }
                 else
                 {
-                    uv_position.push([result.positions[j]+x,result.positions[j+1]-min_y])
+                    uv_position.push([result.positions[j]+x,y-1+result.positions[j+1]-min_y+1])
                 }
             }
             for(var j =0;j<result.indices.length;j+=3)
@@ -171,23 +194,29 @@ function voxel2mesh(voxel)
             offset += result.positions.length / 2
             
         }
-        x += max_x - min_x + 1
-        if(max_y - min_y + 1 > height)
+        x += w + 1
+
+        if(x > max_width)
         {
-            height = max_y - min_y + 1
+            max_width = x
         }
+        if(y > max_height)
+        {
+            max_height = y
+        }
+
     }
-    console.log(x, height)
-    uv_position = uv_position.map(y=>[y[0]/x,y[1]/height])
+    max_height += full_height
+    uv_position = uv_position.map(z=>[z[0]/max_width,z[1]/max_height])
 
 
     for(var i in uv_color)
     {
-        uv_color[i].position = [uv_color[i].position[0],height-uv_color[i].position[1]]
+        uv_color[i].position = [uv_color[i].position[0],max_height-1-uv_color[i].position[1]]
     }
 
     var [vert,index] = weld(result_index,result_position)
-    return {vert,index,normal,uv_position,uv_index,uv_color,width:x,height}
+    return {vert,index,normal,uv_position,uv_index,uv_color,width:max_width,height:max_height}
 }
 
 export {voxel2mesh}
