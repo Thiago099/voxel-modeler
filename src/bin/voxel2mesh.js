@@ -111,25 +111,22 @@ function voxel2mesh(voxel)
 
         var [min_x,min_y,max_x,max_y] = get_bounds(layer.data)
 
-        var w = max_x - min_x + 1
         if(reverse)
         {
-            w = max_y - min_y + 1
+            var w = max_y 
             x -= min_y
         }
         else
         {
+            var w = max_x 
             x -= min_x
         }
-        x += 1
 
         if(x > row_width_for_sqaure)
         {
             x = 0
             y += full_height
         }
-
-
         for(var index in layer.data)
         {
             var color = layer.colors[index]
