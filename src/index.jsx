@@ -262,7 +262,7 @@ _export = () => {
             }
             else
             {
-                var img = build_hd_texture(data,scale)
+                var img = build_hd_texture(data,square_size)
                 SaveImage(filename+".png",img)
             }
         }
