@@ -338,10 +338,39 @@ async function process(){
 
 
     save = () => {
-        Save("voxel_model.vox",{
-            voxels:voxel.voxels,
-            color:voxel.color
+
+        var save_obj_preferences = localStorage.getItem("save_obj_preferences")
+        var filename = ""
+        if(save_obj_preferences != null)
+        {
+            save_obj_preferences = JSON.parse(save_obj_preferences)
+            filename = save_obj_preferences.filename
+        }
+
+        const export_button = ref()
+        var modal_content = 
+        <div class="prompt-small col">
+            <div class="row margin">
+                <div>
+                    <label>Filename</label>
+                    <input type="text" class="input" model={filename}></input>
+                </div>
+            </div>
+            <button class="footer-button button" ref={export_button}>Export</button>
+        </div>
+    
+        var {close} = modal(modal_content)
+
+        export_button.$on("click",() => {
+
+            save_obj_preferences.filename = filename
+            localStorage.setItem("save_obj_preferences",JSON.stringify(save_obj_preferences))
+            Save(filename+".vox",{
+                voxels:voxel.voxels,
+                color:voxel.color
+            })
         })
+
     }
     load = async () => {
         Load("vox",({voxels, color})=>{
