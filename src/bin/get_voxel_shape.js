@@ -1,5 +1,5 @@
 import earcut from 'earcut';
-export {getGeometry, getShape,weld}
+export {getGeometry, getShape,weld, useMap,join_array}
 function getShape(voxels)
 {
     const [get_voxel_at] = useMap(voxels);
