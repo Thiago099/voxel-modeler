@@ -1,0 +1,14 @@
+
+
+
+.trackbar-bright-data{
+  background: linear-gradient(90deg,white 0%, white var(--min-limit), rgba(var(--color-from),1) var(--min-limit), rgba(var(--color-to),1) var(--max-limit), black var(--min-limit), black 100%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 1px solid black;
+}
+
+

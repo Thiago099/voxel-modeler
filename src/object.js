@@ -243,6 +243,8 @@ const subdivideFaceIndex = [
     ]
   ]
 
+  var relevant_index = [2,2,1,1,0,0]
+
 class Voxel
 {
     constructor()
@@ -781,13 +783,41 @@ class Voxel
         return result
     }
 
-    get_highlight(data,setSelection, color=null)
+    printPointsWithinCircle(radius,position) {
+        if(radius < 1) return [[position[0],position[1]]]
+        const center = { x: position[0], y: position[1] }; // set center of the circle to (0,0)
+        
+        var result = []
+        
+        for (let x = center.x - radius; x <= center.x + radius; x++) {
+          for (let y = center.y - radius; y <= center.y + radius; y++) {
+            const distance = Math.sqrt((x - center.x)**2 + (y - center.y)**2);
+            if (distance <= radius) {
+                result.push([x,y])
+            }
+          }
+        }
+
+        return result
+    }
+      
+      
+
+    
+    get_highlight(data,setSelection, color=null, radius)
     {
+        const [get_voxel_at] = useMap(this.voxels)
+
         var indexes = new Set(data.map(u=>color_2_id(u)))
+
         var aindex = Array.from(indexes)
         var result = []
         var selection = []
         var id = 0
+        var selection = []
+
+        var highlight = new Set()
+
         for(const index in this.pick_meta)
         {
             const face = this.faces[index]
@@ -802,45 +832,31 @@ class Voxel
                         direction_id += 1
                         continue
                     }
-
-                    if(color != null)
-                    {
-                        var rest_color = this.color[index][i]
-                    }
-                    else
-                    {
-                        var rest_color = this.color[index][i]//.map(x => Math.abs(1-x* 0.3) )
-                    }
                     if(indexes.has(id))
                     {
-                        if(color != null)
-                        {
-                            var face_color = this.color[index][i].map((x,i) => (x * (1 - color[3]))+(color[i]*color[3] ))
-                        }
-                        else
-                        {
-                            var face_color = this.color[index][i].map(x => Math.abs(1-x* 0.5) )
-                        }
+                        var v = [...this.voxels[index]]
+                        v.splice(relevant_index[direction_id],1)
 
-                        selection.push({
-                            voxel:[this.voxels[index]],
-                            direction:directions[direction_id],
-                            color:[this.color[index][i]],
-                            mouse_color:this.color[index][i],
-                            index:index,
-                        })
-                        
+                        var cirlce = this.printPointsWithinCircle(radius-1,v)
 
-                        for(var j = 0; j < 4; j++)
+                        for(const point of cirlce)
                         {
-                            result.push(...face_color,1)
-                        }
-                    }
-                    else
-                    {
-                        for(var j = 0; j < 4; j++)
-                        {
-                            result.push(...rest_color,1)
+                            var voxel = [...point]
+                            voxel.splice(relevant_index[direction_id],0,this.voxels[index][relevant_index[direction_id]])
+
+                            var cv = get_voxel_at(voxel)
+                            var cvid = `${cv},${i}`
+                            if(cv == null || highlight.has(cvid)) continue
+
+                            highlight.add(cvid)
+
+                            selection.push({
+                                voxel:[this.voxels[cv]],
+                                direction:directions[direction_id],
+                                color:[this.color[cv][i]],
+                                mouse_color:this.color[cv][i],
+                                index:index,
+                            })
                         }
                     }
 
@@ -856,19 +872,51 @@ class Voxel
                     {
                         continue
                     }
-
-                    for(var j = 0; j < 4; j++)
-                    {
-                        
-                        result.push(...this.color[index][i],1)
-                    }
-                    id += 1
+                    id+=1
                 }
             }
 
         }
+
+        for(const index in this.faces)
+        {
+            var face = this.faces[index]
+            for(var i = 0; i < face.length; i++)
+            {
+                if(face[i] == 0)
+                {
+                    continue
+                }
+
+                for(var j = 0; j < 4; j++)
+                {
+                    if(highlight.has(`${index},${i}`))
+                    {
+                        if(color)
+                        {
+                            var face_color = this.color[index][i].map((x,i) => (x * (1 - color[3]))+(color[i]*color[3] ))
+                        }
+                        else
+                        {
+                            var face_color = this.color[index][i].map(x => Math.abs(1-x* 0.5) )
+                        }
+                        result.push(...face_color,1)
+                    }
+                    else
+                    {
+                        result.push(...this.color[index][i],1)
+                    }
+                }
+                id += 1
+            }
+
+        }
+
+
         setSelection(selection)
         return result;
+
+        
         
     }
         

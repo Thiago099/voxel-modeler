@@ -115,6 +115,7 @@ function SetColor(fg,bg)
     }
     set(so,bo)
 }
+const controls = state({radius:1})
 const canvas = ref()
 const fps = ref()
 const main = 
@@ -166,7 +167,11 @@ const main =
     <canvas ref={canvas} ></canvas>
     <div class="info">
         <p>
-            FPS: <span ref={fps}></span>
+            {/* FPS: <span ref={fps}></span> */}
+            <label>Radius</label>
+            <div style="width:300px">
+                <input type="number" model={controls.radius} class="input" />
+            </div>
         </p>
         <p>
             <h3>
@@ -217,7 +222,6 @@ var voxel = new Voxel()
 voxel.init()
 
 
-
 _export = () => {
 
     var save_obj_preferences = localStorage.getItem("save_obj_preferences")
@@ -231,7 +235,6 @@ _export = () => {
 
     if(save_obj_preferences != null)
     {
-        console.log(save_obj_preferences)
         save_obj_preferences = JSON.parse(save_obj_preferences)
         texture = save_obj_preferences.texture
         geometry = save_obj_preferences.geometry
@@ -692,13 +695,14 @@ async function process(){
                         selection.color[j][i] = (selection.color[j][i] * (1 - background[3]))+(background[i]*background[3] )
                     }
                 }
-                if(e.button == 1)
-                {
-                    foreground = [...selection.mouse_color,1]
-                    last = foreground
-                    SetColor(foreground)
-                }
+
             }
+        }
+        if(e.button == 1)
+        {
+            foreground = [...selection.mouse_color,1]
+            last = foreground
+            SetColor(foreground)
         }
         push_history()
     })
@@ -730,7 +734,7 @@ async function process(){
 
  
     step((a) => {
-        fps.$html(a)
+        // fps.$html(a)
         update()
 
         builder.attribute_matrix_3_float.normal = voxel.geometry_normals;
@@ -791,11 +795,11 @@ async function process(){
         {
             if(selected_mode == "Sculpt")
             {
-                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel_group,data=>selection = data)
+                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel_group,data=>selection = data,null,controls.radius)
             }
             else
             {
-                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel_group,data=>selection = data,last)
+                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel_group,data=>selection = data,last,controls.radius)
 
             }
         }

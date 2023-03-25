@@ -1,6 +1,7 @@
 import './color-selection.css'
 import AlphaTrackBar from '../alpha-trackbar/alpha-trackbar'
 import RGBTrackBar from '../rgb-trackbar/rgb-trackbar'
+import BrightTrackbar from '../bright-trackbar/bright-trackbar'
 import { Save, Load } from '../../bin/persistence'
 function ColorPicker({set,get})
 {
@@ -125,7 +126,7 @@ function ColorPicker({set,get})
     }
 
     var result = 
-    <div>
+    <div style="width:100%">
         <div style="width:100px;margin:10px;position:relative">
             <div class="hash-tag">#</div>
         <input type="text" class="input hex-input" maxLength="6" on:input={valueChange} ref={hexInput} />
@@ -135,6 +136,7 @@ function ColorPicker({set,get})
             <RGBTrackBar start={r} colorFrom={`0,${g},${b}`} colorTo={`255,${g},${b}`} callback={x=>updateR(x)}/>
             <RGBTrackBar start={g} colorFrom={`${r},0,${b}`} colorTo={`${r},255,${b}`} callback={x=>updateG(x)}/>
             <RGBTrackBar start={b} colorFrom={`${r},${g},0`} colorTo={`${r},${g},255`} callback={x=>updateB(x)}/>
+            <BrightTrackbar start={[r,g,b]} callback={x=>updateBright(x)} />
             </div>
         </div>
         <div class="row">
@@ -157,7 +159,6 @@ function ColorPicker({set,get})
         </div>
         <div class="alpha-area"  style="margin-top:-10px">
             <AlphaTrackBar start={a} color={`${r},${g},${b};`} callback={x=>updateA(x)}/>
-            <AlphaTrackBar start={ba} color={`${br},${bg},${bb};`} callback={x=>updateBA(x)}/>
 
         </div>
         </div>
@@ -226,12 +227,15 @@ function ColorPicker({set,get})
         if(result) result.$update()
         send()
     }
-    function updateBA(v)
+    function updateBright(color)
     {
-        ba = v
+        r = color[0]
+        g = color[1]
+        b = color[2]
         if(result) result.$update()
-        send("background")
+        send()
     }
+
     
 
     function swap()
