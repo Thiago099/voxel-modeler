@@ -526,9 +526,7 @@ async function process(){
             
     });
     document.addEventListener('keyup', function(event) {
-        if (event.key == "Control") {
-            ctrlDown = false;
-        }
+        ctrlDown = false;
     });
     
     var has_ctrl = false

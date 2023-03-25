@@ -111,32 +111,41 @@ function voxel2mesh(voxel)
 
         var [min_x,min_y,max_x,max_y] = get_bounds(layer.data)
 
+
         if(reverse)
         {
             var w = max_y 
-            var h = max_x
-            x -= min_y
+            var h = max_x - min_x
+            x-=min_y
         }
         else
         {
             var w = max_x
-            var h = max_y 
-            x -= min_x
+            var h = max_y - min_y
+            x-=min_x
         }
 
         if(x > row_width_for_sqaure)
         {
             x = 0
-            y += local_height
+            y += local_height + 1
             local_height = 0
         }
-
         if(h > local_height)
         {
             local_height = h
         }
 
-        
+        if(reverse)
+        {
+            var cy = y - min_x
+        }
+        else
+        {
+            var cy = y - min_y
+        }
+
+
 
         for(var index in layer.data)
         {
@@ -147,14 +156,14 @@ function voxel2mesh(voxel)
             {
                 uv_color.push({
                     color,
-                    position:[position[1]+x,y+position[0]],
+                    position:[position[1]+x,cy+position[0]],
                 })
             }
             else
             {
                 uv_color.push({
                     color,
-                    position:[position[0]+x,y+position[1]],
+                    position:[position[0]+x,cy+position[1]],
                 })
             }
         }
@@ -169,11 +178,11 @@ function voxel2mesh(voxel)
                 result_position.push(current)
                 if(reverse)
                 {
-                    uv_position.push([result.positions[j+1]+x,y-1+result.positions[j]+1])
+                    uv_position.push([result.positions[j+1]+x,cy+result.positions[j]])
                 }
                 else
                 {
-                    uv_position.push([result.positions[j]+x,y-1+result.positions[j+1]+1])
+                    uv_position.push([result.positions[j]+x,cy+result.positions[j+1]])
                 }
             }
             for(var j =0;j<result.indices.length;j+=3)
@@ -217,7 +226,7 @@ function voxel2mesh(voxel)
         }
 
     }
-    max_height += full_height
+    max_height += local_height + 1
     uv_position = uv_position.map(z=>[z[0]/max_width,z[1]/max_height])
 
 
