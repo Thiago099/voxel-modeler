@@ -5,6 +5,7 @@ Once you are done you can save a editable .vox file or a obj file with a texture
 ## patch notes:
 
 vram leek fixed
+
 added feather to the brushes
 
 ![image](https://user-images.githubusercontent.com/66787043/227627193-07205c31-20b1-4c93-8e15-442b071af9cc.png)
