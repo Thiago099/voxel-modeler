@@ -800,11 +800,27 @@ class Voxel
 
         return result
     }
+
+    printPointsWithinSquare(radius,position) {
+        if(radius < 1) return [[position[0],position[1]]]
+        radius = Math.round(radius / 2)
+        const center = { x: position[0], y: position[1] }; // set center of the circle to (0,0)
+        
+        var result = []
+        
+        for (let x = center.x - radius; x <= center.x + radius; x++) {
+          for (let y = center.y - radius; y <= center.y + radius; y++) {
+            result.push([x,y])
+          }
+        }
+
+        return result
+    }
       
       
 
     
-    get_highlight(data,setSelection, color=null, radius)
+    get_highlight(data,setSelection, color=null, radius,circle)
     {
         const [get_voxel_at] = useMap(this.voxels)
 
@@ -837,7 +853,15 @@ class Voxel
                         var v = [...this.voxels[index]]
                         v.splice(relevant_index[direction_id],1)
 
-                        var cirlce = this.printPointsWithinCircle(radius-1,v)
+                        if(circle)
+                        {
+                            var cirlce = this.printPointsWithinCircle(radius-1,v)
+                        }
+                        else
+                        {
+                            var cirlce = this.printPointsWithinSquare(radius,v)
+                        }
+
 
                         for(const point of cirlce)
                         {

@@ -118,6 +118,8 @@ function SetColor(fg,bg)
 const controls = state({radius:1})
 const canvas = ref()
 const fps = ref()
+
+var circle = true
 const main = 
 <div class="main">
     <div class="info">
@@ -167,11 +169,7 @@ const main =
     <canvas ref={canvas} ></canvas>
     <div class="info">
         <p>
-            {/* FPS: <span ref={fps}></span> */}
-            <label>Radius</label>
-            <div style="width:300px">
-                <input type="number" model={controls.radius} class="input" />
-            </div>
+            FPS: <span ref={fps}></span>
         </p>
         <p>
             <h3>
@@ -183,7 +181,12 @@ const main =
             <h3>
                 Tool options
             </h3>
+            <label>Radius</label>
+            <div style="width:300px">
+                <input type="number" model={controls.radius} class="input" />
+            </div>
             {ToggleButton("Contiguous",x=>contiguous = x)}
+            {ToggleButton("Circle",x=>circle = x)}
         </p>
         <p>
             <h3>
@@ -795,11 +798,11 @@ async function process(){
         {
             if(selected_mode == "Sculpt")
             {
-                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel_group,data=>selection = data,null,controls.radius)
+                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel_group,data=>selection = data,null,controls.radius,circle)
             }
             else
             {
-                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel_group,data=>selection = data,last,controls.radius)
+                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel_group,data=>selection = data,last,controls.radius,circle)
 
             }
         }
