@@ -810,7 +810,8 @@ class Voxel
         
         for (let x = center.x - radius; x <= center.x + radius; x++) {
           for (let y = center.y - radius; y <= center.y + radius; y++) {
-            result.push([x,y])
+            var distance = Math.max(Math.abs(x - center.x) + Math.abs(y - center.y),1)
+            result.push([[x,y],1-(distance / radius / 2)])
           }
         }
 
