@@ -91,12 +91,14 @@ class attributeBuilder
 
         callback();
 
-        gl.deleteTexture(texture);
-        gl.deleteRenderbuffer(depthBuffer);
-        gl.deleteFramebuffer(framebuffer);
+        
         gl.bindRenderbuffer(gl.RENDERBUFFER, null);
         gl.bindTexture(gl.TEXTURE_2D, null);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        
+        gl.deleteTexture(texture);
+        gl.deleteRenderbuffer(depthBuffer);
+        gl.deleteFramebuffer(framebuffer);
 
         return texture;
 
