@@ -98,7 +98,7 @@ function voxel2mesh(voxel)
     var row_width_for_sqaure = Math.ceil(Math.sqrt(full_width * full_height))
 
 
-
+    var local_height = 0
     for(var i in layers)
     {
         var layer = layers[i]
@@ -114,19 +114,30 @@ function voxel2mesh(voxel)
         if(reverse)
         {
             var w = max_y 
+            var h = max_x
             x -= min_y
         }
         else
         {
-            var w = max_x 
+            var w = max_x
+            var h = max_y 
             x -= min_x
         }
 
         if(x > row_width_for_sqaure)
         {
             x = 0
-            y += full_height
+            y += local_height
+            local_height = 0
         }
+
+        if(h > local_height)
+        {
+            local_height = h
+        }
+
+        
+
         for(var index in layer.data)
         {
             var color = layer.colors[index]

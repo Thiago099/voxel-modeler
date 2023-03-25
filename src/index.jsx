@@ -556,6 +556,7 @@ async function process(){
             px = x
             py = y
             drag = true
+            positions = [[x,y]]
         }
 
         if(e.button == 0)

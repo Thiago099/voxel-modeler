@@ -802,7 +802,7 @@ class Voxel
     }
 
     printPointsWithinSquare(radius,position) {
-        if(radius < 1) return [[position[0],position[1]]]
+        if(radius < 1) return [[[position[0],position[1]],1]]
         radius = Math.round(radius / 2)
         const center = { x: position[0], y: position[1] }; // set center of the circle to (0,0)
         

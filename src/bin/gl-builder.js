@@ -24,24 +24,40 @@ class attributeBuilder
         })
 
 
-        this.attribute_matrix_3_float = varProxy((name, value) => {
+        this.attribute_matrix_3_float = varProxy((name, value, old) => {
+
+            var attribute = gl.getAttribLocation(this.program, name);
+            if(old != null)
+            {
+                gl.deleteBuffer(old);
+            }
+
             var vertex_buffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(value), gl.STATIC_DRAW);
         
-            var attribute = gl.getAttribLocation(this.program, name);
             gl.vertexAttribPointer(attribute, 3, gl.FLOAT, false,0,0);
             gl.enableVertexAttribArray(attribute);
+            return vertex_buffer;
+            
         })
 
-        this.attribute_matrix_4_float = varProxy((name, value) => {
+        this.attribute_matrix_4_float = varProxy((name, value,old) => {
+
+            var attribute = gl.getAttribLocation(this.program, name);
+
+            if(old != null)
+            {
+                gl.deleteBuffer(old);
+            }
             var vertex_buffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(value), gl.STATIC_DRAW);
-        
-            var attribute = gl.getAttribLocation(this.program, name);
+
             gl.vertexAttribPointer(attribute, 4, gl.FLOAT, false,0,0);
             gl.enableVertexAttribArray(attribute);
+
+            return vertex_buffer;
         })
     }
     set face(faces)
@@ -58,8 +74,7 @@ class attributeBuilder
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
 
 
-        //
-        var depthBuffer = gl.createRenderbuffer();
+        const depthBuffer = gl.createRenderbuffer();
         gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
         gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, canvas.width, canvas.height);
         gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer);
@@ -76,6 +91,11 @@ class attributeBuilder
 
         callback();
 
+        gl.deleteTexture(texture);
+        gl.deleteRenderbuffer(depthBuffer);
+        gl.deleteFramebuffer(framebuffer);
+        gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+        gl.bindTexture(gl.TEXTURE_2D, null);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
         return texture;
@@ -114,6 +134,10 @@ class attributeBuilder
 
         gl.getParameter(gl.ALIASED_LINE_WIDTH_RANGE)
         gl.drawElements(gl.TRIANGLES, faces.length, gl.UNSIGNED_SHORT, 0);
+
+        //clean up
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.deleteBuffer(index_buffer);
     }
     drawLines(faces)
     {
@@ -132,14 +156,16 @@ class attributeBuilder
 
         gl.getParameter(gl.ALIASED_LINE_WIDTH_RANGE)
         gl.drawElements(gl.LINES, faces.length, gl.UNSIGNED_SHORT, 0);
+        gl.deleteBuffer(index_buffer);
     }
 }
 
 function varProxy(callback)
 {
+    var old = {}
     return new Proxy({}, {
         set: function(target, name, value) {
-            callback(name,value)
+            old[name] = callback(name,value,old[name])
             return true;
         }
     });
