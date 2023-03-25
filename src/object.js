@@ -784,7 +784,7 @@ class Voxel
     }
 
     printPointsWithinCircle(radius,position) {
-        if(radius < 1) return [[position[0],position[1]]]
+        if(radius < 1) return [[[position[0],position[1]],1]]
         const center = { x: position[0], y: position[1] }; // set center of the circle to (0,0)
         
         var result = []
@@ -793,7 +793,7 @@ class Voxel
           for (let y = center.y - radius; y <= center.y + radius; y++) {
             const distance = Math.sqrt((x - center.x)**2 + (y - center.y)**2);
             if (distance <= radius) {
-                result.push([x,y])
+                result.push([[x,y],1-(distance / radius)])
             }
           }
         }
@@ -820,17 +820,18 @@ class Voxel
       
 
     
-    get_highlight(data,setSelection, color=null, radius,circle)
+    get_highlight(data,setSelection, color=null, radius,circle,feather)
     {
         const [get_voxel_at] = useMap(this.voxels)
+
+        const selection_map = {}
 
         var indexes = new Set(data.map(u=>color_2_id(u)))
 
         var aindex = Array.from(indexes)
         var result = []
-        var selection = []
         var id = 0
-        var selection = []
+        var selections = []
 
         var highlight = new Set()
 
@@ -863,24 +864,35 @@ class Voxel
                         }
 
 
-                        for(const point of cirlce)
+                        for(const data of cirlce)
                         {
+                            var [ point, distance ] = data
                             var voxel = [...point]
                             voxel.splice(relevant_index[direction_id],0,this.voxels[index][relevant_index[direction_id]])
 
                             var cv = get_voxel_at(voxel)
                             var cvid = `${cv},${i}`
-                            if(cv == null || highlight.has(cvid)) continue
+                            if(highlight.has(cvid))
+                            {
+                                selection_map[cvid].distance = Math.max(selection_map[cvid].distance,distance)
+                                continue
+                            }
+                            if(cv == null) continue
 
                             highlight.add(cvid)
 
-                            selection.push({
+                            var selection = {
                                 voxel:[this.voxels[cv]],
                                 direction:directions[direction_id],
                                 color:[this.color[cv][i]],
+                                distance:distance,
                                 mouse_color:this.color[cv][i],
                                 index:index,
-                            })
+                            }
+
+                            selection_map[cvid] = selection
+
+                            selections.push(selection)
                         }
                     }
 
@@ -916,9 +928,26 @@ class Voxel
                 {
                     if(highlight.has(`${index},${i}`))
                     {
+                        const item = selection_map[`${index},${i}`]
                         if(color)
                         {
-                            var face_color = this.color[index][i].map((x,i) => (x * (1 - color[3]))+(color[i]*color[3] ))
+
+     
+                            var face_color = this.color[index][i].map((x,i) => {
+                                var k = feather
+                                if(k > 0)
+                                {
+                                    var d = item.distance / k
+                                }
+                                else
+                                {
+                                    var d = 1
+                                }
+
+                                var k_color =  (x * (1 - color[3]*d))+(color[i]*color[3]*d )
+
+                                return k_color
+                            })
                         }
                         else
                         {
@@ -937,7 +966,7 @@ class Voxel
         }
 
 
-        setSelection(selection)
+        setSelection(selections)
         return result;
 
         

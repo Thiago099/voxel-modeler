@@ -70,7 +70,6 @@ function BrightTrackbar({callback, start})
         r = data.relative_value + pr
         g = data.relative_value + pg
         b = data.relative_value + pb
-        console.log(r,g,b)
         callback([r,g,b])
     }
     document.addEventListener("mousemove", (e) => {

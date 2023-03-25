@@ -115,7 +115,7 @@ function SetColor(fg,bg)
     }
     set(so,bo)
 }
-const controls = state({radius:1})
+const controls = state({radius:1,feather:0})
 const canvas = ref()
 const fps = ref()
 
@@ -184,6 +184,10 @@ const main =
             <label>Radius</label>
             <div style="width:300px">
                 <input type="number" model={controls.radius} class="input" />
+            </div>
+            <label>Feather</label>
+            <div style="width:300px">
+                <input type="number" model={controls.feather} min="0" max="1" step="0.1" class="input" />
             </div>
             {ToggleButton("Contiguous",x=>contiguous = x)}
             {ToggleButton("Circle",x=>circle = x)}
@@ -627,6 +631,22 @@ async function process(){
             }
             else
             {
+                function mix(distance,a,b,i)
+                {
+                    var k = parseFloat(controls.feather)
+                    if(k > 0)
+                    {
+                        var d = distance / k
+                    }
+                    else
+                    {
+                        var d = 1
+                    }
+
+                    var k_color =  (a * (1 - b[3]*d))+(b[i]*b[3]*d )
+
+                    return k_color
+                }
                 if(e.button == 0)
                 {
                     last = foreground
@@ -635,7 +655,7 @@ async function process(){
                         for(var j = 0; j < item.color.length; j++)
                         for(var i = 0; i < 3; i++)
                         {
-                            item.color[j][i] = (item.color[j][i] * (1 - foreground[3]))+(foreground[i]*foreground[3] )
+                            item.color[j][i] = mix(item.distance,item.color[j][i],foreground,i)
                         }
                     }
                 }
@@ -647,7 +667,7 @@ async function process(){
                         for(var j = 0; j < item.color.length; j++)
                         for(var i = 0; i < 3; i++)
                         {
-                            item.color[j][i] = (item.color[j][i] * (1 - background[3]))+(background[i]*background[3] )
+                            item.color[j][i] = mix(item.distance,item.color[j][i],background,i)
                         }
                     }
                 }
@@ -798,11 +818,11 @@ async function process(){
         {
             if(selected_mode == "Sculpt")
             {
-                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel_group,data=>selection = data,null,controls.radius,circle)
+                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel_group,data=>selection = data,null,controls.radius,circle, parseFloat(controls.feather))
             }
             else
             {
-                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel_group,data=>selection = data,last,controls.radius,circle)
+                builder.attribute_matrix_4_float.color = voxel.get_highlight(pixel_group,data=>selection = data,last,controls.radius,circle, parseFloat(controls.feather))
 
             }
         }

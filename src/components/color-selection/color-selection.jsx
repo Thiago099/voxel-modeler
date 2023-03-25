@@ -93,7 +93,6 @@ function ColorPicker({set,get})
 
     function rgb2hex(r,g,b)
     {
-        console.log(r,g,b)
         return [r,g,b].map(x=>parseInt(x).toString(16).padStart(2,"0")).join("")
     }
     function hex2rgb(hex)
