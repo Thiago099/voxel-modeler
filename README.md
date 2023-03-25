@@ -2,7 +2,8 @@ You can click to add and remove voxels, with a variety of tools, that you can al
 
 Once you are done you can save a editable .vox file or a obj file with a texture
 
-patch notes:
+## patch notes:
+
 vram leek fixed
 added feather to the brushes
 
